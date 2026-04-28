@@ -19,19 +19,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [showSignup, setShowSignup] = useState(false);
 
-  useEffect(() => {
-    const u = getUser();
-    if (u) setUser(u);
-  }, []);
-
-  if (!user) {
-    return showSignup
-      ? <Signup setShowSignup={setShowSignup} />
-      : <Login onLogin={setUser} setShowSignup={setShowSignup} />;
-  }
-
   // ============================================
-  // 🚀 MULTI QUESTION STATE (NEW)
+  // 🚀 MOVE ALL HOOKS HERE (IMPORTANT)
   // ============================================
   const [questions, setQuestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -40,80 +29,87 @@ export default function App() {
   const [activePanel, setActivePanel] = useState("setup");
   const [activeSection, setActiveSection] = useState("setup");
   const [showOptions, setShowOptions] = useState(false);
-  // ============================================
-  // STATE (UNCHANGED)
-  // ============================================
+
   const [form, setForm] = useState({
     id: "",
     title: "",
     type: "radio",
-    description: "",  
+    description: "",
     comment: "",
-
     optionsText: "",
     rowsText: "",
     columnsText: "",
-
     rangeMin: "",
     rangeMax: "",
-
     autosumRows: [{ title: "", desc: "" }],
-
     randomize: {
       rows: false,
       columns: false,
       all: false,
     },
-
     exclusive: false,
-
-  config: {
-    optional: false,
-    atleast: "",
-    atmost: "",
-    exact: "",
-    unique: "",
-    verify: "",
-
-    amount: "",
-    tolerance: "",
-    enforceTotal: true,
-    autoFillRemainder: false,
-    showTotal: true,
-
-    rowLegend: "",
-    preText: "",
-    alignment: "right",
-    inputSize: "medium",
-    placeholder: "",
-
-    autoAdvance: false,
-    disableInsteadOfHide: false,
-
-    randomizeSubset: "",
-    keepFirstFixed: false,
-    keepLastFixed: false,
-
-    includeOther: false,
-    includeNone: false,
-    includeDK: false,
-    includePNA: false,
-
-    errorMessage: "",
-
-    variableName: "",
-    exportLabel: "",
-  },
-
+    config: {
+      optional: false,
+      atleast: "",
+      atmost: "",
+      exact: "",
+      unique: "",
+      verify: "",
+      amount: "",
+      tolerance: "",
+      enforceTotal: true,
+      autoFillRemainder: false,
+      showTotal: true,
+      rowLegend: "",
+      preText: "",
+      alignment: "right",
+      inputSize: "medium",
+      placeholder: "",
+      autoAdvance: false,
+      disableInsteadOfHide: false,
+      randomizeSubset: "",
+      keepFirstFixed: false,
+      keepLastFixed: false,
+      includeOther: false,
+      includeNone: false,
+      includeDK: false,
+      includePNA: false,
+      errorMessage: "",
+      variableName: "",
+      exportLabel: "",
+    },
     logicEnabled: false,
     logicSource: "",
     logicColumns: "",
-
     parsedOptions: [],
     parsedRows: [],
     parsedColumns: [],
     smartPasteText: ""
   });
+
+  const [xml, setXml] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ============================================
+  // 🔐 AUTH CHECK
+  // ============================================
+  useEffect(() => {
+    const u = getUser();
+    if (u) setUser(u);
+  }, []);
+
+  // ============================================
+  // 🔐 LOGIN / SIGNUP VIEW
+  // ============================================
+  if (!user) {
+    return showSignup
+      ? <Signup setShowSignup={setShowSignup} />
+      : <Login onLogin={setUser} setShowSignup={setShowSignup} />;
+  }
+
+  // ============================================
+  // 🔧 FUNCTIONS (safe below)
+  // ============================================
 
   const injectSpecialOptions = (options = [], config = {}) => {
     let updated = [...options];
@@ -139,7 +135,6 @@ export default function App() {
       special.push({ value: 96, text: "Prefer not to answer", anchor: true, exclusive: true });
     }
 
-    // ✅ ALWAYS append at end (stable order)
     return [...updated, ...special];
   };
   const [xml, setXml] = useState("");
