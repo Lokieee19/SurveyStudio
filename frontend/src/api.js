@@ -1,13 +1,19 @@
 import { getAuthHeader, logout } from "./auth";
 
-const BASE_URL = "https://surveystudio.onrender.com";
+// =============================
+// 🔐 CONFIG
+// =============================
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "https://surveystudio.onrender.com";
 
 // =============================
 // 🔍 PREVIEW API (PUBLIC)
 // =============================
 export async function previewQuestion(payload) {
   try {
-    console.log("🔍 PREVIEW PAYLOAD:", payload);
+    if (import.meta.env.DEV) {
+      console.log("🔍 PREVIEW PAYLOAD:", payload);
+    }
 
     const res = await fetch(`${BASE_URL}/preview`, {
       method: "POST",
@@ -23,23 +29,26 @@ export async function previewQuestion(payload) {
     });
 
     const text = await res.text();
-    console.log("📥 PREVIEW RAW RESPONSE:", text);
 
     let data;
     try {
       data = JSON.parse(text);
-    } catch (e) {
+    } catch {
       console.error("❌ Invalid JSON from preview:", text);
-      throw new Error("Invalid preview response");
+      return { questions: [] };
+    }
+
+    // 🔐 ACCESS BLOCKED (rare but safe)
+    if (res.status === 403) {
+      alert("Access denied.");
+      return { questions: [] };
     }
 
     if (!res.ok) {
-      console.error("❌ Preview API HTTP error:", text);
       throw new Error(data?.error || "Preview API failed");
     }
 
     if (data.error) {
-      console.error("❌ Backend preview error:", data.error);
       throw new Error(data.error);
     }
 
@@ -56,50 +65,54 @@ export async function previewQuestion(payload) {
 // =============================
 export async function generateXML(payload) {
   try {
-    console.log("🚀 GENERATE PAYLOAD:", payload);
+    if (import.meta.env.DEV) {
+      console.log("🚀 GENERATE PAYLOAD:", payload);
+    }
 
     const res = await fetch(`${BASE_URL}/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...getAuthHeader(), // ✅ token automatically added
+        ...getAuthHeader(), // ✅ attach token
       },
       body: JSON.stringify(payload),
     });
 
     const text = await res.text();
-    console.log("📥 GENERATE RAW RESPONSE:", text);
 
     let data;
     try {
       data = JSON.parse(text);
-    } catch (e) {
+    } catch {
       console.error("❌ Invalid JSON from generate:", text);
       throw new Error("Invalid generate response");
     }
 
-    // 🔐 TOKEN EXPIRED / INVALID
+    // 🔐 TOKEN EXPIRED
     if (res.status === 401) {
-      console.error("❌ Unauthorized - token expired");
-
-      logout(); // ✅ clear session automatically
+      console.warn("⚠️ Session expired");
+      logout();
       alert("Session expired. Please login again.");
+      window.location.reload();
+      return { xml: "" };
+    }
 
-      window.location.reload(); // 🔄 force back to login
-
+    // 🔐 ACCESS BLOCKED
+    if (res.status === 403) {
+      console.warn("⚠️ Access denied");
+      logout();
+      alert("Access denied.");
+      window.location.reload();
       return { xml: "" };
     }
 
     // ❌ HTTP ERROR
     if (!res.ok) {
-      console.error("❌ Generate API HTTP error:", text);
       throw new Error(data?.error || "Generate API failed");
     }
 
     // ❌ BACKEND ERROR
     if (data.error) {
-      console.error("❌ Backend generate error:", data.error);
-      console.error("🔍 DEBUG PAYLOAD:", payload);
       throw new Error(data.error);
     }
 

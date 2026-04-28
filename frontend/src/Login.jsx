@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { setAuth, getPrefillEmail, clearPrefillEmail } from "./auth";
 
-const BASE_URL = "https://surveystudio.onrender.com";
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "https://surveystudio.onrender.com";
 
-export default function Login({ onLogin, setShowSignup }) {
+export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   // =============================
-  // 🔹 PREFILL EMAIL (FROM SIGNUP)
+  // 🔹 PREFILL EMAIL (OPTIONAL)
   // =============================
   useEffect(() => {
     const savedEmail = getPrefillEmail();
@@ -23,6 +24,8 @@ export default function Login({ onLogin, setShowSignup }) {
   // 🔐 HANDLE LOGIN
   // =============================
   const handleLogin = async () => {
+    if (loading) return;
+
     try {
       if (!email || !password) {
         alert("Please enter email and password");
@@ -36,24 +39,39 @@ export default function Login({ onLogin, setShowSignup }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email: email.toLowerCase().trim(),
+          password,
+        }),
       });
 
       const data = await res.json();
+
+      // 🔐 INVALID CREDENTIALS
+      if (res.status === 401) {
+        alert("Invalid email or password");
+        return;
+      }
+
+      // 🔐 ACCESS BLOCKED
+      if (res.status === 403) {
+        alert("Access denied. Contact admin.");
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.detail || "Login failed");
       }
 
       // ✅ SAVE AUTH
-      setAuth(data.token, email);
+      setAuth(data.token, email.toLowerCase().trim());
 
       // ✅ UPDATE APP STATE
-      onLogin(email);
+      onLogin(email.toLowerCase().trim());
 
     } catch (err) {
       console.error("❌ Login error:", err);
-      alert(err.message);
+      alert(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -77,24 +95,26 @@ export default function Login({ onLogin, setShowSignup }) {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleLogin();
+          }}
         />
 
         <button
-          style={styles.button}
+          style={{
+            ...styles.button,
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
           onClick={handleLogin}
           disabled={loading}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        <p style={styles.switchText}>
-          Don’t have an account?{" "}
-          <span
-            style={styles.link}
-            onClick={() => setShowSignup(true)}
-          >
-            Sign Up
-          </span>
+        {/* 🔒 Signup removed */}
+        <p style={styles.note}>
+          Access restricted to authorized users only
         </p>
       </div>
     </div>
@@ -137,15 +157,12 @@ const styles = {
     border: "none",
     background: "#3b82f6",
     color: "#fff",
-    cursor: "pointer",
     fontWeight: "bold",
   },
-  switchText: {
-    fontSize: "14px",
+  note: {
+    fontSize: "12px",
     textAlign: "center",
-  },
-  link: {
-    color: "#38bdf8",
-    cursor: "pointer",
+    opacity: 0.7,
+    marginTop: "8px",
   },
 };

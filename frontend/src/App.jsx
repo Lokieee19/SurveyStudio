@@ -5,7 +5,6 @@ import GenerateButton from "./components/GenerateButton";
 import { getUser, logout } from "./auth";
 
 import Login from "./Login";
-import Signup from "./Signup";
 
 
 // 🔥 CLEAN SPECIAL TAGS (ANCHOR, EXCLUSIVE, ETC.)
@@ -17,11 +16,6 @@ const cleanText = (txt) =>
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [showSignup, setShowSignup] = useState(false);
-
-  // ============================================
-  // 🚀 MOVE ALL HOOKS HERE (IMPORTANT)
-  // ============================================
   const [questions, setQuestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [parsed, setParsed] = useState([]);
@@ -1129,9 +1123,7 @@ export default function App() {
   return (
     <>
       {!user ? (
-        showSignup
-          ? <Signup setShowSignup={setShowSignup} />
-          : <Login onLogin={setUser} setShowSignup={setShowSignup} />
+        <Login onLogin={setUser} />
       ) : (
     
     <div>

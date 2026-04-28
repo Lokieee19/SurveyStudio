@@ -4,6 +4,8 @@
 
 // ✅ Save token + user
 export function setAuth(token, email) {
+  if (!token || !email) return;
+
   localStorage.setItem("token", token);
   localStorage.setItem("user", email);
 }
@@ -20,34 +22,61 @@ export function getUser() {
 
 // ✅ Check if logged in
 export function isLoggedIn() {
-  return !!getToken();
+  const token = getToken();
+  return !!token;
 }
 
-// ✅ Logout user
+// =============================
+// 🔐 LOGOUT (SAFE RESET)
+// =============================
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("prefillEmail");
 }
 
 // =============================
 // 🔐 AUTH HEADER HELPER
 // =============================
-
 export function getAuthHeader() {
   const token = getToken();
-  return token
-    ? {
-        Authorization: `Bearer ${token}`,
-      }
-    : {};
+
+  if (!token) return {};
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 }
 
 // =============================
-// 🔐 OPTIONAL HELPERS (NICE UX)
+// 🔐 TOKEN VALIDITY CHECK (BASIC)
+// =============================
+export function isTokenValid() {
+  const token = getToken();
+
+  if (!token) return false;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+
+    // exp is in seconds
+    const isExpired = payload.exp * 1000 < Date.now();
+
+    return !isExpired;
+  } catch {
+    return false;
+  }
+}
+
+// =============================
+// 🔐 OPTIONAL HELPERS (UX)
 // =============================
 
-// ✅ Prefill email (for signup → login flow)
+// (You can remove these if signup is removed)
+
+// ✅ Prefill email (legacy support)
 export function setPrefillEmail(email) {
+  if (!email) return;
   localStorage.setItem("prefillEmail", email);
 }
 
