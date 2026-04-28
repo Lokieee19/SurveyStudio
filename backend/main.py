@@ -74,11 +74,13 @@ pwd_context = CryptContext(
 
 
 def hash_password(password: str):
-    return pwd_context.hash(password)
-
+    # Ensure max 72 bytes (bcrypt limit)
+    safe_password = password.encode("utf-8")[:72].decode("utf-8", "ignore")
+    return pwd_context.hash(safe_password)
 
 def verify_password(plain: str, hashed: str):
-    return pwd_context.verify(plain, hashed)
+    safe_plain = plain.encode("utf-8")[:72].decode("utf-8", "ignore")
+    return pwd_context.verify(safe_plain, hashed)
 
 
 def create_token(data: dict):
