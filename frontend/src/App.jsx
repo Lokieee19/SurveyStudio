@@ -540,121 +540,93 @@ export default function App() {
         return;
       }
 
-      // ✅ MOVE VALIDATION HERE (CORRECT PLACE)
-      const validQuestions = questions.filter(q =>
-        q.id && q.title && q.type
-      );
-
-      if (!validQuestions.length) {
-        alert("No valid questions to preview");
-        return;
-      }
-
       setLoading(true);
 
       /* ============================================
-        BUILD PAYLOAD FOR ALL QUESTIONS
+        ✅ BUILD FULL TEXT (IMPORTANT CHANGE)
       ============================================ */
-      const payloads = validQuestions.map((q) => ({
-        id: q.id?.trim(),
-        title: q.title
-          ?.replace(/\[PIPE:/gi, "[pipe:")
-          .trim(),
-        type: q.type,
 
-        description: q.description?.trim(),
-        comment: q.comment?.trim(),
+      const fullText = questions
+        .map((q) => {
+          let block = "";
 
-        optionsText: cleanInput(q.optionsText),
-        insert: q.insert || null,
-        rowsText:
-          q.type === "autosum"
-            ? (
-                q.parsedRows?.length > 0
-                  ? q.parsedRows.map(r => `${r.value}. ${r.text}`).join("\n")
-                  : ""
-              )
-            : cleanInput(q.rowsText),
+          block += `Question ID: ${q.id}\n`;
+          block += `Question Type: ${q.type}\n`;
+          block += `Title: ${q.title}\n`;
 
-        columnsText: cleanInput(q.columnsText),
+          if (q.description) {
+            block += `Description: ${q.description}\n`;
+          }
 
-        parsedRows: q.parsedRows || [],
-        parsedOptions: q.parsedOptions || [],
+          if (q.optionsText) {
+            block += `Options:\n${q.optionsText}\n`;
+          }
 
-        range:
-          q.rangeMin && q.rangeMax
-            ? [Number(q.rangeMin), Number(q.rangeMax)]
-            : null,
+          if (q.rowsText) {
+            block += `Rows:\n${q.rowsText}\n`;
+          }
 
-        config: q.config || {},
-        randomize: {
-          enabled: q.randomize?.all || q.randomize?.rows || false,
-          rows: q.randomize?.rows || false,
-          cols: q.randomize?.columns || false,
-        },
-        exclusive: !!q.exclusive,
+          if (q.columnsText) {
+            block += `Columns:\n${q.columnsText}\n`;
+          }
 
-        routing: {
-          cond: q.logic ? cleanLogicForBackend(q.logic) : null,
-          goto: q.target || null,
-          term: q.terminate || null,
-          default: q.defaultTarget || null
-        },
-      }));
+          return block;
+        })
+        .join("\n\n");
 
-      const results = await Promise.all(
-        payloads.map((p) => previewQuestion(p))
-      );
+      console.log("🚀 FULL TEXT SENT TO BACKEND:\n", fullText);
 
-      const allQuestions = results.flatMap((r) =>
-        Array.isArray(r.questions) ? r.questions : []
-      );
+      /* ============================================
+        ✅ SINGLE API CALL (FIXED)
+      ============================================ */
+
+      const result = await previewQuestion(fullText);
+
+      console.log("✅ PREVIEW RESULT:", result);
+
+      const allQuestions = Array.isArray(result.questions)
+        ? result.questions
+        : [];
 
       setParsed(allQuestions);
       setXml("");
 
       if (!allQuestions.length) return;
 
-      const updatedQuestions = [...validQuestions];
+      /* ============================================
+        🔄 MERGE BACK INTO STATE
+      ============================================ */
+
+      const updatedQuestions = [...questions];
 
       allQuestions.forEach((q) => {
-        const original = validQuestions.find(v => v.id === q.id);
-        if (!original) return;
-
-        const index = validQuestions.findIndex(v => v.id === q.id);
+        const index = updatedQuestions.findIndex(v => v.id === q.id);
+        if (index === -1) return;
 
         updatedQuestions[index] = {
-          ...original,
+          ...updatedQuestions[index],
 
           parsedOptions: (q.options || []).map(opt =>
             enforceOptionRules({
               ...opt,
-              text: opt.text,
-              value: Number(opt.value) || 0 // 🔥 CRITICAL
+              value: Number(opt.value) || 0
             })
           ),
 
           parsedRows: (q.rows || []).map(row =>
             enforceOptionRules({
               ...row,
-              text: row.text,
               value: Number(row.value)
             })
           ),
 
           parsedColumns: (q.columns || []).map(col => ({
-            ...col,
-            text: col.text
+            ...col
           })),
         };
       });
-      setQuestions(prev =>
-        prev.map(q => {
-          const match = updatedQuestions.find(u => u.id === q.id);
-          return match ? match : q;
-        })
-      );
-      setActiveIndex(prev => prev);
+
+      setQuestions(updatedQuestions);
 
       setForm(prev => ({
         ...prev,
@@ -662,7 +634,7 @@ export default function App() {
       }));
 
     } catch (err) {
-      console.error(err);
+      console.error("❌ Preview failed:", err);
       alert("Preview failed");
     } finally {
       setLoading(false);
