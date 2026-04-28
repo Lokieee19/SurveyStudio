@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { setPrefillEmail } from "./auth";
 
 const BASE_URL = "https://surveystudio.onrender.com";
 
@@ -7,6 +8,9 @@ export default function Signup({ setShowSignup }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // =============================
+  // 🔐 HANDLE SIGNUP
+  // =============================
   const handleSignup = async () => {
     try {
       if (!email || !password) {
@@ -26,11 +30,29 @@ export default function Signup({ setShowSignup }) {
 
       const data = await res.json();
 
+      // ❌ HANDLE ERROR
       if (!res.ok) {
+        if (data.detail?.includes("User already exists")) {
+          alert("User already exists. Redirecting to login...");
+
+          // 🔥 PREFILL EMAIL FOR LOGIN
+          setPrefillEmail(email);
+
+          // 🔥 SWITCH TO LOGIN PAGE
+          setShowSignup(false);
+          return;
+        }
+
         throw new Error(data.detail || "Signup failed");
       }
 
+      // ✅ SUCCESS
       alert("✅ Account created! Please login.");
+
+      // 🔥 PREFILL EMAIL
+      setPrefillEmail(email);
+
+      // 🔥 GO TO LOGIN
       setShowSignup(false);
 
     } catch (err) {
@@ -61,7 +83,11 @@ export default function Signup({ setShowSignup }) {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button style={styles.button} onClick={handleSignup} disabled={loading}>
+        <button
+          style={styles.button}
+          onClick={handleSignup}
+          disabled={loading}
+        >
           {loading ? "Creating..." : "Sign Up"}
         </button>
 
@@ -79,6 +105,9 @@ export default function Signup({ setShowSignup }) {
   );
 }
 
+// =============================
+// 🎨 STYLES
+// =============================
 const styles = {
   container: {
     height: "100vh",

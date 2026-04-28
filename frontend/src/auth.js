@@ -13,24 +13,48 @@ export function getToken() {
   return localStorage.getItem("token");
 }
 
-// ✅ Get current user
+// ✅ Get current user (email)
 export function getUser() {
   return localStorage.getItem("user");
 }
 
-// ✅ Check login
+// ✅ Check if logged in
 export function isLoggedIn() {
-  return !!localStorage.getItem("token");
+  return !!getToken();
 }
 
-// ✅ Logout
+// ✅ Logout user
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 }
 
-// ✅ Auth header helper
+// =============================
+// 🔐 AUTH HEADER HELPER
+// =============================
+
 export function getAuthHeader() {
   const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return token
+    ? {
+        Authorization: `Bearer ${token}`,
+      }
+    : {};
+}
+
+// =============================
+// 🔐 OPTIONAL HELPERS (NICE UX)
+// =============================
+
+// ✅ Prefill email (for signup → login flow)
+export function setPrefillEmail(email) {
+  localStorage.setItem("prefillEmail", email);
+}
+
+export function getPrefillEmail() {
+  return localStorage.getItem("prefillEmail") || "";
+}
+
+export function clearPrefillEmail() {
+  localStorage.removeItem("prefillEmail");
 }

@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { setAuth, getPrefillEmail, clearPrefillEmail } from "./auth";
 
 const BASE_URL = "https://surveystudio.onrender.com";
 
-export default function Signup({ setShowSignup }) {
+export default function Login({ onLogin, setShowSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignup = async () => {
+  // =============================
+  // 🔹 PREFILL EMAIL (FROM SIGNUP)
+  // =============================
+  useEffect(() => {
+    const savedEmail = getPrefillEmail();
+    if (savedEmail) {
+      setEmail(savedEmail);
+      clearPrefillEmail();
+    }
+  }, []);
+
+  // =============================
+  // 🔐 HANDLE LOGIN
+  // =============================
+  const handleLogin = async () => {
     try {
       if (!email || !password) {
         alert("Please enter email and password");
@@ -16,7 +31,7 @@ export default function Signup({ setShowSignup }) {
 
       setLoading(true);
 
-      const res = await fetch(`${BASE_URL}/signup`, {
+      const res = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,14 +42,17 @@ export default function Signup({ setShowSignup }) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || "Signup failed");
+        throw new Error(data.detail || "Login failed");
       }
 
-      alert("✅ Account created! Please login.");
-      setShowSignup(false);
+      // ✅ SAVE AUTH
+      setAuth(data.token, email);
+
+      // ✅ UPDATE APP STATE
+      onLogin(email);
 
     } catch (err) {
-      console.error("❌ Signup error:", err);
+      console.error("❌ Login error:", err);
       alert(err.message);
     } finally {
       setLoading(false);
@@ -44,7 +62,7 @@ export default function Signup({ setShowSignup }) {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Create Account</h2>
+        <h2 style={styles.title}>Login</h2>
 
         <input
           style={styles.input}
@@ -63,19 +81,19 @@ export default function Signup({ setShowSignup }) {
 
         <button
           style={styles.button}
-          onClick={handleSignup}
+          onClick={handleLogin}
           disabled={loading}
         >
-          {loading ? "Creating..." : "Sign Up"}
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <p style={styles.switchText}>
-          Already have an account?{" "}
+          Don’t have an account?{" "}
           <span
             style={styles.link}
-            onClick={() => setShowSignup(false)}
+            onClick={() => setShowSignup(true)}
           >
-            Login
+            Sign Up
           </span>
         </p>
       </div>
@@ -117,7 +135,7 @@ const styles = {
     padding: "10px",
     borderRadius: "6px",
     border: "none",
-    background: "#22c55e",
+    background: "#3b82f6",
     color: "#fff",
     cursor: "pointer",
     fontWeight: "bold",
