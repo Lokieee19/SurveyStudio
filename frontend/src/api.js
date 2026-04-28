@@ -1,7 +1,7 @@
 const BASE_URL = "https://surveystudio.onrender.com";
 
 // =============================
-// 🔍 PREVIEW API
+// 🔍 PREVIEW API (PUBLIC)
 // =============================
 export async function previewQuestion(payload) {
   try {
@@ -13,15 +13,14 @@ export async function previewQuestion(payload) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // ✅ ALWAYS SEND STRING
-        text: typeof payload === "string"
-          ? payload
-          : JSON.stringify(payload, null, 2)
-      })
+        text:
+          typeof payload === "string"
+            ? payload
+            : JSON.stringify(payload, null, 2),
+      }),
     });
 
     const text = await res.text();
-
     console.log("📥 PREVIEW RAW RESPONSE:", text);
 
     let data;
@@ -43,7 +42,6 @@ export async function previewQuestion(payload) {
     }
 
     return data;
-
   } catch (err) {
     console.error("❌ Preview request failed:", err);
     return { questions: [] };
@@ -51,23 +49,29 @@ export async function previewQuestion(payload) {
 }
 
 // =============================
-// ⚙️ GENERATE XML API
+// ⚙️ GENERATE XML API (PROTECTED)
 // =============================
 export async function generateXML(payload) {
   try {
     console.log("🚀 GENERATE PAYLOAD:", payload);
 
+    // 🔐 GET TOKEN
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("User not logged in");
+    }
+
     const res = await fetch(`${BASE_URL}/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // 🔥 CRITICAL
       },
       body: JSON.stringify(payload),
     });
 
     const text = await res.text();
-
-    // 🔥 RAW RESPONSE LOG
     console.log("📥 GENERATE RAW RESPONSE:", text);
 
     let data;
@@ -76,6 +80,17 @@ export async function generateXML(payload) {
     } catch (e) {
       console.error("❌ Invalid JSON from generate:", text);
       throw new Error("Invalid generate response");
+    }
+
+    // 🔥 HANDLE AUTH ERROR
+    if (res.status === 401) {
+      console.error("❌ Unauthorized - invalid token");
+
+      // optional: auto logout
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      throw new Error("Session expired. Please login again.");
     }
 
     // 🔥 HANDLE HTTP ERROR
@@ -87,19 +102,34 @@ export async function generateXML(payload) {
     // 🔥 HANDLE BACKEND ERROR
     if (data.error) {
       console.error("❌ Backend generate error:", data.error);
-
-      // 🔍 SHOW FULL PAYLOAD (CRITICAL FOR DEBUG)
       console.error("🔍 DEBUG PAYLOAD:", payload);
-
       throw new Error(data.error);
     }
 
     return data;
-
   } catch (err) {
     console.error("❌ Generate request failed:", err);
 
-    // SAFE FALLBACK
     return { xml: "" };
   }
+}
+
+// =============================
+// 🔐 AUTH HELPERS (OPTIONAL)
+// =============================
+
+// Check if user is logged in
+export function isLoggedIn() {
+  return !!localStorage.getItem("token");
+}
+
+// Logout user
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}
+
+// Get current user email
+export function getUser() {
+  return localStorage.getItem("user");
 }

@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { previewQuestion, generateXML } from "./api";
 import SurveyPreview from "./components/SurveyPreview";
 import GenerateButton from "./components/GenerateButton";
-import { auth } from "./firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { getUser, logout } from "./api";
 
 import Login from "./Login";
 import Signup from "./Signup";
@@ -15,22 +14,20 @@ const cleanText = (txt) =>
     .replace(/\[(anchor|exclusive|terminate|other)\]/gi, "")
     .trim();
 
-export default function App() {
 
+export default function App() {
   const [user, setUser] = useState(null);
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
-    return () => unsub();
+    const u = getUser();
+    if (u) setUser(u);
   }, []);
 
   if (!user) {
     return showSignup
-      ? <Signup />
-      : <Login onLogin={setUser} />;
+      ? <Signup setShowSignup={setShowSignup} />
+      : <Login onLogin={setUser} setShowSignup={setShowSignup} />;
   }
 
   // ============================================
@@ -1143,20 +1140,14 @@ export default function App() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span>Welcome: {user.email}</span>
-        <button onClick={() => signOut(auth)}>Logout</button>
+        <span>Welcome: {user}</span>
+        <button onClick={() => {
+          logout();
+          setUser(null);
+        }}>
+          Logout
+        </button>
       </div>
-
-      <div style={styles.page}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.logo}>Survey Studio</h1>
-            <p style={styles.subtitle}>
-              Build surveys
-            </p>
-          </div>
-        </div>
 
         {/* MAIN GRID */}
         <div style={styles.main}>
