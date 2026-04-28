@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://surveystudio.onrender.com";
 
 // =============================
 // 🔍 PREVIEW API
@@ -12,7 +12,9 @@ export async function previewQuestion(payload) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        text: payload
+      })
     });
 
     const text = await res.text();

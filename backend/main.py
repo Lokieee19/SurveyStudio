@@ -4,6 +4,8 @@ from typing import Any, Dict, List
 
 from parser_service import parse_input
 from xml_generator import generate_xml
+from pydantic import BaseModel
+from parser_service import smart_block_parser  # 🔥 add this import
 
 app = FastAPI()
 
@@ -21,11 +23,19 @@ app.add_middleware(
 
 # =============================
 # 🔹 PREVIEW ENDPOINT
-# =============================
+# ============================
+
+class TextRequest(BaseModel):
+    text: str
+
+
 @app.post("/preview")
-async def preview(payload: Dict[str, Any]):
+async def preview(req: TextRequest):
     try:
-        questions = parse_input(payload)
+        raw_text = req.text
+
+        # 🔥 use correct parser for raw script
+        questions = smart_block_parser(raw_text)
 
         return {
             "questions": questions
