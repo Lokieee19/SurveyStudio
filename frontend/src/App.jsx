@@ -623,11 +623,21 @@ export default function App() {
       /* ============================================
         🔥 SINGLE API CALL
       ============================================ */
-      const result = await previewQuestion(combinedScript);
+      // 🔥 USE FRONTEND PARSED DATA DIRECTLY
+      const allQuestions = payloads.map(p => ({
+        id: p.id,
+        label: p.id, // ✅ CRITICAL
+        title: p.title,
+        type: p.type,
+        description: p.description,
+        comment: p.comment,
 
-      const allQuestions = Array.isArray(result.questions)
-        ? result.questions
-        : [];
+        options: parseWithValues(p.optionsText),
+        rows: parseWithValues(p.rowsText),
+        columns: parseWithValues(p.columnsText),
+
+        routing: p.routing || {},
+      }));
 
       setParsed(allQuestions);
       setXml("");
