@@ -35,7 +35,11 @@ async def preview(req: TextRequest):
         raw_text = req.text
 
         # 🔥 use correct parser for raw script
-        questions = smart_block_parser(raw_text)
+        if isinstance(raw_text, str):
+            questions = smart_block_parser(raw_text)
+        else:
+            # fallback (prevents crash)
+            questions = []
 
         return {
             "questions": questions
@@ -47,7 +51,6 @@ async def preview(req: TextRequest):
             "error": str(e),
             "questions": []
         }
-
 
 # =============================
 # 🔹 GENERATE XML ENDPOINT

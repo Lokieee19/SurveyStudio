@@ -13,13 +13,15 @@ export async function previewQuestion(payload) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text: payload
+        // ✅ ALWAYS SEND STRING
+        text: typeof payload === "string"
+          ? payload
+          : JSON.stringify(payload, null, 2)
       })
     });
 
     const text = await res.text();
 
-    // 🔥 RAW RESPONSE LOG
     console.log("📥 PREVIEW RAW RESPONSE:", text);
 
     let data;
@@ -30,16 +32,13 @@ export async function previewQuestion(payload) {
       throw new Error("Invalid preview response");
     }
 
-    // 🔥 HANDLE API FAILURE
     if (!res.ok) {
       console.error("❌ Preview API HTTP error:", text);
       throw new Error("Preview API failed");
     }
 
-    // 🔥 HANDLE BACKEND ERROR
     if (data.error) {
       console.error("❌ Backend preview error:", data.error);
-      console.error("🔍 DEBUG PAYLOAD:", payload);
       throw new Error(data.error);
     }
 
@@ -47,8 +46,6 @@ export async function previewQuestion(payload) {
 
   } catch (err) {
     console.error("❌ Preview request failed:", err);
-
-    // SAFE FALLBACK
     return { questions: [] };
   }
 }
