@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+
 from typing import Dict, List
 from pydantic import BaseModel
 import os
@@ -37,13 +38,11 @@ DATABASE_URL = os.getenv(
 # =============================
 app = FastAPI()
 
-# =============================
-# 🔐 CORS
-# =============================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://survey-studio-three.vercel.app"
+        "https://survey-studio-ten.vercel.app",  # your frontend
+        "http://localhost:5173",                # local dev
     ],
     allow_credentials=True,
     allow_methods=["*"],
