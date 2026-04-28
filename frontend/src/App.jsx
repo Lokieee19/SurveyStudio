@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { previewQuestion, generateXML } from "./api";
 import SurveyPreview from "./components/SurveyPreview";
 import GenerateButton from "./components/GenerateButton";
-import { getUser, logout } from "./api";
+import { getUser, logout } from "./auth";
 
 import Login from "./Login";
 import Signup from "./Signup";

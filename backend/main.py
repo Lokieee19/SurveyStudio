@@ -28,7 +28,7 @@ app = FastAPI()
 # =============================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ restrict later
+    allow_origins=["*"],  # ⚠️ Restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,10 +41,11 @@ app.add_middleware(
 DATABASE_URL = "sqlite:///./users.db"
 
 engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
 )
 
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
@@ -70,8 +71,9 @@ def get_db():
 # =============================
 # 🔐 AUTH CONFIG
 # =============================
-SECRET_KEY = "CHANGE_THIS_SECRET"  # ⚠️ change in prod
+SECRET_KEY = "CHANGE_THIS_SECRET"  # ⚠️ CHANGE THIS
 ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_HOURS = 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -80,27 +82,43 @@ def hash_password(password: str):
     return pwd_context.hash(password)
 
 
-def verify_password(plain, hashed):
+def verify_password(plain: str, hashed: str):
     return pwd_context.verify(plain, hashed)
 
 
 def create_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=1)
+    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+# =============================
+# 🔐 TOKEN VALIDATION (FIXED)
+# =============================
 def get_current_user(authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
 
     try:
-        token = authorization.split(" ")[1]
+        # Expect: Bearer <token>
+        parts = authorization.split(" ")
+
+        if len(parts) != 2 or parts[0] != "Bearer":
+            raise HTTPException(status_code=401, detail="Invalid auth format")
+
+        token = parts[1]
+
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload["sub"]
+
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+
+        return email
+
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 # =============================
@@ -134,7 +152,7 @@ def signup(req: AuthRequest, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
 
-    return {"message": "User created"}
+    return {"message": "User created successfully"}
 
 
 @app.post("/login")
@@ -175,6 +193,9 @@ async def preview(req: TextRequest):
 @app.post("/generate")
 async def generate(payload: List[Dict], user=Depends(get_current_user)):
     try:
+        if not payload:
+            raise HTTPException(status_code=400, detail="Empty payload")
+
         xml = generate_xml(payload)
 
         return {

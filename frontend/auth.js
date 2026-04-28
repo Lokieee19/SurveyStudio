@@ -1,30 +1,39 @@
-export function signup(email, password) {
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
+// =============================
+// 🔐 AUTH STORAGE HELPERS
+// =============================
 
-  const exists = users.find(u => u.email === email);
-  if (exists) throw new Error("User already exists");
-
-  users.push({ email, password });
-  localStorage.setItem("users", JSON.stringify(users));
+// ✅ Save token + user
+export function setAuth(token, email) {
+  localStorage.setItem("token", token);
+  localStorage.setItem("user", email);
 }
 
-export function login(email, password) {
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-  const user = users.find(
-    u => u.email === email && u.password === password
-  );
-
-  if (!user) throw new Error("Invalid credentials");
-
-  localStorage.setItem("currentUser", JSON.stringify(user));
-  return user;
+// ✅ Get token
+export function getToken() {
+  return localStorage.getItem("token");
 }
 
+// ✅ Get current user (email)
+export function getUser() {
+  return localStorage.getItem("user");
+}
+
+// ✅ Check if logged in
+export function isLoggedIn() {
+  return !!localStorage.getItem("token");
+}
+
+// ✅ Logout user
 export function logout() {
-  localStorage.removeItem("currentUser");
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 }
 
-export function getCurrentUser() {
-  return JSON.parse(localStorage.getItem("currentUser"));
+// =============================
+// 🔐 OPTIONAL: AUTH HEADER HELPER
+// =============================
+
+export function getAuthHeader() {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }

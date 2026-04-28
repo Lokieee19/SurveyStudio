@@ -13,6 +13,7 @@ export async function previewQuestion(payload) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        // ✅ ALWAYS SEND STRING
         text:
           typeof payload === "string"
             ? payload
@@ -82,24 +83,24 @@ export async function generateXML(payload) {
       throw new Error("Invalid generate response");
     }
 
-    // 🔥 HANDLE AUTH ERROR
+    // 🔐 SESSION EXPIRED / INVALID TOKEN
     if (res.status === 401) {
-      console.error("❌ Unauthorized - invalid token");
+      console.error("❌ Unauthorized - token invalid/expired");
 
-      // optional: auto logout
+      // 🔥 AUTO LOGOUT
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
       throw new Error("Session expired. Please login again.");
     }
 
-    // 🔥 HANDLE HTTP ERROR
+    // ❌ HTTP ERROR
     if (!res.ok) {
       console.error("❌ Generate API HTTP error:", text);
       throw new Error(data?.error || "Generate API failed");
     }
 
-    // 🔥 HANDLE BACKEND ERROR
+    // ❌ BACKEND ERROR
     if (data.error) {
       console.error("❌ Backend generate error:", data.error);
       console.error("🔍 DEBUG PAYLOAD:", payload);
@@ -109,27 +110,26 @@ export async function generateXML(payload) {
     return data;
   } catch (err) {
     console.error("❌ Generate request failed:", err);
-
     return { xml: "" };
   }
 }
 
 // =============================
-// 🔐 AUTH HELPERS (OPTIONAL)
+// 🔐 AUTH HELPERS
 // =============================
 
-// Check if user is logged in
+// ✅ Check login
 export function isLoggedIn() {
   return !!localStorage.getItem("token");
 }
 
-// Logout user
+// ✅ Get current user (email)
+export function getUser() {
+  return localStorage.getItem("user");
+}
+
+// ✅ Logout
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-}
-
-// Get current user email
-export function getUser() {
-  return localStorage.getItem("user");
 }

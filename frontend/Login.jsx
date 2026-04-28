@@ -2,12 +2,12 @@ import { useState } from "react";
 
 const BASE_URL = "https://surveystudio.onrender.com";
 
-export default function Login({ onLogin, setShowSignup }) {
+export default function Signup({ setShowSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
     try {
       if (!email || !password) {
         alert("Please enter email and password");
@@ -16,7 +16,7 @@ export default function Login({ onLogin, setShowSignup }) {
 
       setLoading(true);
 
-      const res = await fetch(`${BASE_URL}/login`, {
+      const res = await fetch(`${BASE_URL}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,17 +27,14 @@ export default function Login({ onLogin, setShowSignup }) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || "Login failed");
+        throw new Error(data.detail || "Signup failed");
       }
 
-      // 🔥 SAVE TOKEN
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", email);
-
-      onLogin({ email });
+      alert("✅ Account created! Please login.");
+      setShowSignup(false);
 
     } catch (err) {
-      console.error("❌ Login error:", err);
+      console.error("❌ Signup error:", err);
       alert(err.message);
     } finally {
       setLoading(false);
@@ -47,7 +44,7 @@ export default function Login({ onLogin, setShowSignup }) {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Login</h2>
+        <h2 style={styles.title}>Create Account</h2>
 
         <input
           style={styles.input}
@@ -64,17 +61,21 @@ export default function Login({ onLogin, setShowSignup }) {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button style={styles.button} onClick={handleLogin} disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+        <button
+          style={styles.button}
+          onClick={handleSignup}
+          disabled={loading}
+        >
+          {loading ? "Creating..." : "Sign Up"}
         </button>
 
         <p style={styles.switchText}>
-          Don’t have an account?{" "}
+          Already have an account?{" "}
           <span
             style={styles.link}
-            onClick={() => setShowSignup(true)}
+            onClick={() => setShowSignup(false)}
           >
-            Sign Up
+            Login
           </span>
         </p>
       </div>
@@ -82,6 +83,9 @@ export default function Login({ onLogin, setShowSignup }) {
   );
 }
 
+// =============================
+// 🎨 STYLES
+// =============================
 const styles = {
   container: {
     height: "100vh",
@@ -113,7 +117,7 @@ const styles = {
     padding: "10px",
     borderRadius: "6px",
     border: "none",
-    background: "#3b82f6",
+    background: "#22c55e",
     color: "#fff",
     cursor: "pointer",
     fontWeight: "bold",
