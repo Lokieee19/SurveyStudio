@@ -59,6 +59,34 @@ class User(Base):
 
 Base.metadata.create_all(bind=engine)
 
+# =============================
+# 🔹 SEED DEFAULT USERS
+# =============================
+def seed_users():
+    db = SessionLocal()
+
+    default_users = [
+        {"email": "lokesh.m@c5i.ai", "password": "Studio123"},
+        {"email": "nishmitha.k@c5i.ai", "password": "Studio123"},
+        {"email": "Goureesh.Hegde@c5i.ai", "password": "Studio123"},
+        {"email": "dinesh1.kalimuthu@c5i.ai", "password": "Studio123"},
+    ]
+
+    for u in default_users:
+        existing = db.query(User).filter(User.email == u["email"]).first()
+        if not existing:
+            db.add(User(
+                email=u["email"],
+                password=hash_password(u["password"])
+            ))
+
+    db.commit()
+    db.close()
+
+
+# 🔥 Run once when app starts
+seed_users()
+
 
 def get_db():
     db = SessionLocal()
