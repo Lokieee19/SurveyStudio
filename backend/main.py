@@ -57,11 +57,16 @@ class User(Base):
     password = Column(String)
 
 
+# 1️⃣ DB setup
 Base.metadata.create_all(bind=engine)
 
-# =============================
-# 🔹 SEED DEFAULT USERS
-# =============================
+# 2️⃣ AUTH CONFIG
+pwd_context = CryptContext(...)
+
+def hash_password(password: str):
+    return pwd_context.hash(password)
+
+# 3️⃣ SEED FUNCTION
 def seed_users():
     db = SessionLocal()
 
@@ -77,14 +82,13 @@ def seed_users():
         if not existing:
             db.add(User(
                 email=u["email"],
-                password=hash_password(u["password"])
+                password=hash_password(u["password"])  # ✅ now works
             ))
 
     db.commit()
     db.close()
 
-
-# 🔥 Run once when app starts
+# 4️⃣ CALL IT HERE (AFTER EVERYTHING)
 seed_users()
 
 
