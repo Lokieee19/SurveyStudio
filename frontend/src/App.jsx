@@ -94,19 +94,15 @@ export default function App() {
   // 🔐 AUTH CHECK
   // ============================================
   useEffect(() => {
-    const u = getUser();
-    if (u) setUser(u);
+    const token = localStorage.getItem("token");
+    const u = localStorage.getItem("user");
+
+    if (token && u) {
+      setUser(u);   // ✅ valid session
+    } else {
+      setUser(null); // 🔥 force login
+    }
   }, []);
-
-  // ============================================
-  // 🔐 LOGIN / SIGNUP VIEW
-  // ============================================
-  if (!user) {
-    return showSignup
-      ? <Signup setShowSignup={setShowSignup} />
-      : <Login onLogin={setUser} setShowSignup={setShowSignup} />;
-  }
-
   // ============================================
   // 🔧 FUNCTIONS (safe below)
   // ============================================
@@ -137,8 +133,6 @@ export default function App() {
 
     return [...updated, ...special];
   };
-  const [xml, setXml] = useState("");
-  const [loading, setLoading] = useState(false);
   const CopyBlock = ({ title = "JavaScript", code = "" }) => {
     const [copied, setCopied] = useState(false);
 
@@ -1133,6 +1127,13 @@ export default function App() {
   // UI
   // ============================================
   return (
+    <>
+      {!user ? (
+        showSignup
+          ? <Signup setShowSignup={setShowSignup} />
+          : <Login onLogin={setUser} setShowSignup={setShowSignup} />
+      ) : (
+    
     <div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <span>Welcome: {user}</span>
@@ -2206,7 +2207,9 @@ export default function App() {
           </div>
         </div>
       </div>
-  );
+    )}  
+  </>
+);
 }
 
 /**
