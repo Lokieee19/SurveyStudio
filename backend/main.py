@@ -28,7 +28,7 @@ app = FastAPI()
 # =============================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ Restrict in production
+    allow_origins=["*"],  # ⚠️ restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,7 +36,7 @@ app.add_middleware(
 
 
 # =============================
-# 🔹 DATABASE (SQLite)
+# 🔹 DATABASE
 # =============================
 DATABASE_URL = "sqlite:///./users.db"
 
@@ -45,7 +45,7 @@ engine = create_engine(
     connect_args={"check_same_thread": False}
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
@@ -57,57 +57,20 @@ class User(Base):
     password = Column(String)
 
 
-# 1️⃣ DB setup
 Base.metadata.create_all(bind=engine)
 
-# 2️⃣ AUTH CONFIG
-pwd_context = CryptContext(...)
-
-def hash_password(password: str):
-    return pwd_context.hash(password)
-
-# 3️⃣ SEED FUNCTION
-def seed_users():
-    db = SessionLocal()
-
-    default_users = [
-        {"email": "lokesh.m@c5i.ai", "password": "Studio123"},
-        {"email": "nishmitha.k@c5i.ai", "password": "Studio123"},
-        {"email": "Goureesh.Hegde@c5i.ai", "password": "Studio123"},
-        {"email": "dinesh1.kalimuthu@c5i.ai", "password": "Studio123"},
-    ]
-
-    for u in default_users:
-        existing = db.query(User).filter(User.email == u["email"]).first()
-        if not existing:
-            db.add(User(
-                email=u["email"],
-                password=hash_password(u["password"])  # ✅ now works
-            ))
-
-    db.commit()
-    db.close()
-
-# 4️⃣ CALL IT HERE (AFTER EVERYTHING)
-seed_users()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 # =============================
-# 🔐 AUTH CONFIG
+# 🔐 AUTH CONFIG (FIXED)
 # =============================
-SECRET_KEY = "CHANGE_THIS_SECRET"  # ⚠️ CHANGE THIS
+SECRET_KEY = "CHANGE_THIS_SECRET"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
 
 
 def hash_password(password: str):
@@ -126,14 +89,13 @@ def create_token(data: dict):
 
 
 # =============================
-# 🔐 TOKEN VALIDATION (FIXED)
+# 🔐 TOKEN VALIDATION
 # =============================
 def get_current_user(authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
 
     try:
-        # Expect: Bearer <token>
         parts = authorization.split(" ")
 
         if len(parts) != 2 or parts[0] != "Bearer":
@@ -154,6 +116,48 @@ def get_current_user(authorization: str = Header(None)):
 
 
 # =============================
+# 🔹 DB SESSION
+# =============================
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# =============================
+# 🔹 SEED USERS (FIXED ORDER)
+# =============================
+def seed_users():
+    db = SessionLocal()
+
+    default_users = [
+        {"email": "lokesh.m", "password": "Studio123"},
+        {"email": "nishmitha.k", "password": "Studio123"},
+        {"email": "goureesh.hegde", "password": "Studio123"},
+        {"email": "dinesh1.kalimuthu", "password": "Studio123"},
+    ]
+
+    for u in default_users:
+        existing = db.query(User).filter(User.email == u["email"]).first()
+        if not existing:
+            db.add(User(
+                email=u["email"],
+                password=hash_password(u["password"])
+            ))
+
+    db.commit()
+    db.close()
+
+
+# Run at startup
+@app.on_event("startup")
+def startup_event():
+    seed_users()
+
+
+# =============================
 # 🔹 REQUEST MODELS
 # =============================
 class TextRequest(BaseModel):
@@ -168,7 +172,6 @@ class AuthRequest(BaseModel):
 # =============================
 # 🔐 AUTH ROUTES
 # =============================
-
 @app.post("/signup")
 def signup(req: AuthRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
@@ -200,27 +203,20 @@ def login(req: AuthRequest, db: Session = Depends(get_db)):
 
 
 # =============================
-# 🔹 PREVIEW ENDPOINT (PUBLIC)
+# 🔹 PREVIEW
 # =============================
 @app.post("/preview")
 async def preview(req: TextRequest):
     try:
-        raw_text = req.text
-
-        if isinstance(raw_text, str):
-            questions = smart_block_parser(raw_text)
-        else:
-            questions = []
-
+        questions = smart_block_parser(req.text)
         return {"questions": questions}
-
     except Exception as e:
         print("❌ PREVIEW ERROR:", str(e))
         return {"error": str(e), "questions": []}
 
 
 # =============================
-# 🔹 GENERATE XML (PROTECTED)
+# 🔹 GENERATE (PROTECTED)
 # =============================
 @app.post("/generate")
 async def generate(payload: List[Dict], user=Depends(get_current_user)):
@@ -232,7 +228,7 @@ async def generate(payload: List[Dict], user=Depends(get_current_user)):
 
         return {
             "xml": xml,
-            "user": user  # optional debug
+            "user": user
         }
 
     except Exception as e:
