@@ -13,26 +13,23 @@ export function getToken() {
   return localStorage.getItem("token");
 }
 
-// ✅ Get current user (email)
+// ✅ Get current user
 export function getUser() {
   return localStorage.getItem("user");
 }
 
-// ✅ Check if logged in
+// ✅ Check login
 export function isLoggedIn() {
   return !!localStorage.getItem("token");
 }
 
-// ✅ Logout user
+// ✅ Logout
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 }
 
-// =============================
-// 🔐 OPTIONAL: AUTH HEADER HELPER
-// =============================
-
+// ✅ Auth header helper
 export function getAuthHeader() {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};

@@ -1,3 +1,5 @@
+import { getAuthHeader, logout } from "./auth";
+
 const BASE_URL = "https://surveystudio.onrender.com";
 
 // =============================
@@ -13,7 +15,6 @@ export async function previewQuestion(payload) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // ✅ ALWAYS SEND STRING
         text:
           typeof payload === "string"
             ? payload
@@ -34,7 +35,7 @@ export async function previewQuestion(payload) {
 
     if (!res.ok) {
       console.error("❌ Preview API HTTP error:", text);
-      throw new Error("Preview API failed");
+      throw new Error(data?.error || "Preview API failed");
     }
 
     if (data.error) {
@@ -43,6 +44,7 @@ export async function previewQuestion(payload) {
     }
 
     return data;
+
   } catch (err) {
     console.error("❌ Preview request failed:", err);
     return { questions: [] };
@@ -56,18 +58,11 @@ export async function generateXML(payload) {
   try {
     console.log("🚀 GENERATE PAYLOAD:", payload);
 
-    // 🔐 GET TOKEN
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      throw new Error("User not logged in");
-    }
-
     const res = await fetch(`${BASE_URL}/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // 🔥 CRITICAL
+        ...getAuthHeader(), // ✅ token automatically added
       },
       body: JSON.stringify(payload),
     });
@@ -83,15 +78,16 @@ export async function generateXML(payload) {
       throw new Error("Invalid generate response");
     }
 
-    // 🔐 SESSION EXPIRED / INVALID TOKEN
+    // 🔐 TOKEN EXPIRED / INVALID
     if (res.status === 401) {
-      console.error("❌ Unauthorized - token invalid/expired");
+      console.error("❌ Unauthorized - token expired");
 
-      // 🔥 AUTO LOGOUT
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      logout(); // ✅ clear session automatically
+      alert("Session expired. Please login again.");
 
-      throw new Error("Session expired. Please login again.");
+      window.location.reload(); // 🔄 force back to login
+
+      return { xml: "" };
     }
 
     // ❌ HTTP ERROR
@@ -108,28 +104,9 @@ export async function generateXML(payload) {
     }
 
     return data;
+
   } catch (err) {
     console.error("❌ Generate request failed:", err);
     return { xml: "" };
   }
-}
-
-// =============================
-// 🔐 AUTH HELPERS
-// =============================
-
-// ✅ Check login
-export function isLoggedIn() {
-  return !!localStorage.getItem("token");
-}
-
-// ✅ Get current user (email)
-export function getUser() {
-  return localStorage.getItem("user");
-}
-
-// ✅ Logout
-export function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
 }
