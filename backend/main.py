@@ -1,15 +1,17 @@
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.responses import JSONResponse
 
 from typing import Dict, List
 from pydantic import BaseModel
-import os
+import os, time
 
 from parser_service import smart_block_parser
 from xml_generator import generate_xml
 
 # =============================
-# 🔐 AUTH + SECURITY
+# 🔐 AUTH
 # =============================
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
@@ -18,140 +20,103 @@ from passlib.context import CryptContext
 # =============================
 # 🗄️ DATABASE
 # =============================
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
+
+# =============================
+# 🚦 RATE LIMITING
+# =============================
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # =============================
 # 🔹 CONFIG
 # =============================
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-this")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY missing")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./users.db"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./users.db")
 
 # =============================
 # 🔹 APP INIT
 # =============================
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
+# =============================
+# 🔐 REQUEST MODEL (FIX)
+# =============================
+class TextRequest(BaseModel):
+    text: str
+
+# =============================
+# 🔐 CORS
+# =============================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://survey-studio-ten.vercel.app",  # your frontend
-        "http://localhost:5173",                # local dev
+        "https://survey-studio-ten.vercel.app",
+        "http://localhost:5173",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["POST"],
     allow_headers=["*"],
 )
 
 # =============================
-# 🔹 DATABASE ENGINE
+# 🔐 HOST SECURITY
 # =============================
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={"check_same_thread": False}
-    )
-else:
-    engine = create_engine(
-        DATABASE_URL,
-        pool_size=10,
-        max_overflow=20,
-        pool_pre_ping=True
-    )
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# =============================
-# 👤 USER MODEL
-# =============================
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, index=True)
-    password = Column(String)
-
-Base.metadata.create_all(bind=engine)
-
-# =============================
-# 🔐 PASSWORD HASHING
-# =============================
-pwd_context = CryptContext(
-    schemes=["bcrypt_sha256"],
-    deprecated="auto"
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"]
 )
 
-def validate_password(password: str):
-    if not password or len(password) < 8:
-        raise HTTPException(400, "Password must be at least 8 characters")
-
-def hash_password(password: str):
-    return pwd_context.hash(password.strip())
-
-def verify_password(plain: str, hashed: str):
-    return pwd_context.verify(plain.strip(), hashed)
+# =============================
+# 🔐 SECURITY HEADERS
+# =============================
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000"
+    return response
 
 # =============================
-# 🔐 TOKEN
+# 🔐 REQUEST SIZE LIMIT
 # =============================
-def create_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
-
-    to_encode.update({
-        "exp": expire,
-        "iat": datetime.utcnow()
-    })
-
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-def decode_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if "sub" not in payload:
-            raise HTTPException(401, "Invalid token")
-        return payload
-    except JWTError:
-        raise HTTPException(401, "Invalid or expired token")
+@app.middleware("http")
+async def limit_body(request: Request, call_next):
+    body = await request.body()
+    if len(body) > 200_000:
+        return JSONResponse(status_code=413, content={"error": "Too large"})
+    request._body = body
+    return await call_next(request)
 
 # =============================
-# 🔐 ALLOWED USERS
+# 🚦 RATE LIMIT
 # =============================
-ALLOWED_EMAILS = [
-    "lokesh.m",
-    "nishmitha.k",
-    "goureesh.hegde",
-    "dinesh1.kalimuthu",
-    "shiprapandey"
-]
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
 
-# =============================
-# 🔐 AUTH HEADER
-# =============================
-def get_current_user(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Invalid authorization header")
-
-    token = authorization.split(" ")[1]
-    payload = decode_token(token)
-
-    email = payload["sub"]
-
-    if email not in ALLOWED_EMAILS:
-        raise HTTPException(403, "Access denied")
-
-    return email
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(request, exc):
+    return JSONResponse(status_code=429, content={"error": "Too many requests"})
 
 # =============================
-# 🔹 DB SESSION
+# 🔹 DATABASE
 # =============================
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+)
+SessionLocal = sessionmaker(bind=engine)
+Base = declarative_base()
+
 def get_db():
     db = SessionLocal()
     try:
@@ -160,96 +125,166 @@ def get_db():
         db.close()
 
 # =============================
-# 🔹 SEED USERS (FIXED USERS)
+# 👤 USER MODEL
 # =============================
-def seed_users():
-    db = SessionLocal()
+class User(Base):
+    __tablename__ = "users"
 
-    users = [
-        {"email": "lokesh.m", "password": "Lokesh@123"},
-        {"email": "nishmitha.k", "password": "Nish@123"},
-        {"email": "goureesh.hegde", "password": "Gour@123"},
-        {"email": "dinesh1.kalimuthu", "password": "Dinesh@123"},
-        {"email": "shiprapandey", "password": "Shipra@123"},
-    ]
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
 
-    for u in users:
-        existing = db.query(User).filter(User.email == u["email"]).first()
-
-        if existing:
-            # 🔥 FORCE UPDATE PASSWORD
-            existing.password = hash_password(u["password"])
-        else:
-            db.add(User(
-                email=u["email"],
-                password=hash_password(u["password"])
-            ))
-
-    db.commit()
-    db.close()
-
-@app.on_event("startup")
-def startup_event():
-    seed_users()
+    role = Column(String, default="user")
+    is_locked = Column(Boolean, default=False)
+    failed_attempts = Column(Integer, default=0)
 
 # =============================
-# 🔹 REQUEST MODELS
+# 📱 SESSION MODEL
 # =============================
-class TextRequest(BaseModel):
-    text: str
+class SessionModel(Base):
+    __tablename__ = "sessions"
 
-class AuthRequest(BaseModel):
-    email: str
-    password: str
+    id = Column(Integer, primary_key=True)
+    user_email = Column(String, index=True)
+    token = Column(String)
+    ip = Column(String)
+    user_agent = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+Base.metadata.create_all(bind=engine)
 
 # =============================
-# 🔐 LOGIN (ONLY ENTRY POINT)
+# 🔐 PASSWORD
+# =============================
+pwd_context = CryptContext(schemes=["bcrypt_sha256"])
+
+def hash_password(p):
+    return pwd_context.hash(p)
+
+def verify_password(p, h):
+    try:
+        return pwd_context.verify(p, h)
+    except:
+        return False
+
+# =============================
+# 🔐 TOKEN
+# =============================
+def create_token(data: dict):
+    now = datetime.utcnow()
+    payload = {
+        "sub": data["sub"],
+        "role": data.get("role", "user"),
+        "iat": now,
+        "exp": now + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_token(token):
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        raise HTTPException(401, "Invalid token")
+
+# =============================
+# 🔐 AUTH
+# =============================
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(401, "Not authenticated")
+
+    payload = decode_token(token)
+
+    session = db.query(SessionModel).filter(SessionModel.token == token).first()
+    if not session:
+        raise HTTPException(401, "Session invalid")
+
+    return payload
+
+# =============================
+# 🧾 AUDIT LOG
+# =============================
+def audit(user, action):
+    print(f"[AUDIT] {user} -> {action} @ {time.time()}")
+
+# =============================
+# 🔹 LOGIN
 # =============================
 @app.post("/login")
-def login(data: dict, db: Session = Depends(get_db)):
-    email = (data.get("email") or "").lower().strip()
+@limiter.limit("5/minute")
+def login(data: dict, request: Request, response: Response, db: Session = Depends(get_db)):
+    email = data.get("email")
     password = data.get("password")
 
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        print("❌ USER NOT FOUND:", email)   # DEBUG
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(401, "Invalid credentials")
+
+    if user.is_locked:
+        raise HTTPException(403, "Account locked")
 
     if not verify_password(password, user.password):
-        print("❌ WRONG PASSWORD:", email)   # DEBUG
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        user.failed_attempts += 1
+        if user.failed_attempts >= 5:
+            user.is_locked = True
+        db.commit()
+        raise HTTPException(401, "Invalid credentials")
 
-    token = create_token({"sub": user.email})
+    user.failed_attempts = 0
+    db.commit()
 
-    return {"token": token}
+    token = create_token({"sub": user.email, "role": user.role})
+
+    db.add(SessionModel(
+        user_email=user.email,
+        token=token,
+        ip=request.client.host,
+        user_agent=request.headers.get("user-agent")
+    ))
+    db.commit()
+
+    response.set_cookie("access_token", token, httponly=True, secure=True, samesite="None")
+
+    audit(user.email, "login")
+
+    return {"message": "ok"}
+
+# =============================
+# 🔹 LOGOUT
+# =============================
+@app.post("/logout")
+def logout(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("access_token")
+
+    db.query(SessionModel).filter(SessionModel.token == token).delete()
+    db.commit()
+
+    response = JSONResponse({"msg": "logout"})
+    response.delete_cookie("access_token")
+
+    return response
 
 # =============================
 # 🔹 PREVIEW
 # =============================
 @app.post("/preview")
+@limiter.limit("20/minute")
 async def preview(req: TextRequest):
     try:
-        questions = smart_block_parser(req.text)
-        return {"questions": questions}
-    except Exception as e:
-        return {"error": str(e), "questions": []}
+        return {"questions": smart_block_parser(req.text)}
+    except Exception:
+        return {"questions": []}
 
 # =============================
-# 🔒 GENERATE (PROTECTED)
+# 🔒 GENERATE
 # =============================
 @app.post("/generate")
-async def generate(payload: List[Dict], user=Depends(get_current_user)):
-    try:
-        if not payload:
-            raise HTTPException(400, "Empty payload")
+@limiter.limit("10/minute")
+def generate(payload: List[Dict], user=Depends(get_current_user)):
+    audit(user["sub"], "generate")
 
-        xml = generate_xml(payload)
+    xml = generate_xml(payload)
 
-        return {
-            "xml": xml,
-            "user": user
-        }
-
-    except Exception as e:
-        return {"error": str(e), "xml": ""}
+    return {"xml": xml}

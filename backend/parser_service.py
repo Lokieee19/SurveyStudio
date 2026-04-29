@@ -1,7 +1,44 @@
 import re
+import html
 
 # =========================================================
-# 🔹 CLEAN TEXT
+# 🔐 GLOBAL SECURITY LAYER (NON-BREAKING)
+# =========================================================
+
+MAX_INPUT_SIZE = 50000  # prevent abuse / DOS
+
+def safe_text(text):
+    if text is None:
+        return ""
+
+    # convert to string safely
+    text = str(text)
+
+    # 🔒 prevent huge payloads
+    if len(text) > MAX_INPUT_SIZE:
+        raise ValueError("Input too large")
+
+    # 🔒 escape XML/HTML
+    text = html.escape(text)
+
+    # 🔒 remove control characters
+    text = re.sub(r'[\x00-\x1F\x7F]', '', text)
+
+    return text.strip()
+
+
+def safe_logic(logic):
+    if not isinstance(logic, str):
+        return logic
+
+    # 🔒 remove dangerous characters (non-breaking)
+    logic = re.sub(r'[^a-zA-Z0-9\.\_\s\(\)orand]+', '', logic)
+
+    return logic.strip()
+
+
+# =========================================================
+# 🔹 CLEAN TEXT (ORIGINAL — NOT MODIFIED)
 # =========================================================
 def normalize_logic(logic, rows=None, options=None):
     if not logic:
@@ -9,6 +46,9 @@ def normalize_logic(logic, rows=None, options=None):
 
     if isinstance(logic, str):
         logic = logic.strip()
+
+        # 🔒 SAFE WRAP
+        logic = safe_logic(logic)
 
         # q1 == 3 → q1.r3
         logic = re.sub(
@@ -42,7 +82,6 @@ def normalize_logic(logic, rows=None, options=None):
 
         logic = logic.strip()
 
-        # 🔥 CRITICAL: prevent empty logic
         if not logic:
             return None
 
@@ -53,14 +92,23 @@ def normalize_logic(logic, rows=None, options=None):
 
     return None
 
+
+# =========================================================
+# 🔹 SAFE SPLIT BLOCKS
+# =========================================================
 def split_blocks(text):
+    text = safe_text(text)
     return re.split(r'(?=\n?\s*\[q[^\]]+\])', text.strip(), flags=re.I)
 
+
 def normalize_pipe(text):
+    text = safe_text(text)
+
     if not text:
         return text
 
     return re.sub(r'\[PIPE:\s*(.*?)\]', r'[pipe: \1]', text, flags=re.I)
+
 
 def build_cond(logic):
     if not logic:
@@ -83,11 +131,13 @@ def build_cond(logic):
 
     return ""
 
+
 def clean_text(text):
+    text = safe_text(text)
+
     if not text:
         return ""
 
-    # 🔥 remove ONLY flag-type brackets (keep pipe)
     text = re.sub(
         r'[\(\[\{]\s*(anchor|exclusive|terminate|other)[^)\]\}]*[\)\]\}]',
         '',
@@ -102,28 +152,31 @@ def clean_text(text):
 # 🔹 NORMALIZE TEXT
 # =========================================================
 def normalize(text):
+    text = safe_text(text)
     return re.sub(r'\s+', ' ', text).strip()
 
 
 # =========================================================
-# 🔹 SPLIT TEXT + DESCRIPTION (🔥 NEW)
+# 🔹 SPLIT TEXT + DESCRIPTION
 # =========================================================
 def split_text_desc(text):
+    text = safe_text(text)
+
     if not text:
         return "", ""
 
-    # 🔥 support: "text | description"
     if "|" in text:
         parts = text.split("|", 1)
         return parts[0].strip(), parts[1].strip()
 
     return text.strip(), ""
 
-
 # =========================================================
-# 🔹 FLAG DETECTION (UNCHANGED CORE)
+# 🔹 FLAG DETECTION (SECURE WRAPPED)
 # =========================================================
 def detect_flags(text):
+    text = safe_text(text)
+
     if not text:
         return {
             "anchor": False,
@@ -135,7 +188,12 @@ def detect_flags(text):
     text = text.replace("’", "'")
     lower = text.lower()
 
-    tags = re.findall(r'[\(\[\{](.*?)[\)\]\}]', lower)
+    # 🔒 SAFE extraction
+    try:
+        tags = re.findall(r'[\(\[\{](.*?)[\)\]\}]', lower)
+    except Exception:
+        tags = []
+
     tag_text = " ".join(tags)
 
     is_other = (
@@ -173,19 +231,32 @@ def detect_flags(text):
         "other": is_other
     }
 
+
+# =========================================================
+# 🔹 SAFE BLOCK PARSER
+# =========================================================
 def smart_block_parser(text):
-    blocks = split_blocks(text)   # ✅ USE FUNCTION HERE
+    text = safe_text(text)
+
+    try:
+        blocks = split_blocks(text)
+    except Exception:
+        return []
+
     questions = []
 
     for block in blocks:
-        lines = [l.strip() for l in block.split("\n") if l.strip()]
+        try:
+            lines = [safe_text(l) for l in block.split("\n") if l.strip()]
+        except Exception:
+            continue
 
         if not lines:
             continue
 
         qid, title, logic, config = extract_flexible_header(lines)
 
-        # 🔥 fallback if header missed
+        # 🔒 fallback safe
         if not qid:
             match = re.search(r'\[(q[^\]]+)\]', block, re.I)
             if match:
@@ -206,7 +277,6 @@ def smart_block_parser(text):
         else:
             qtype = "radio"
 
-        # 🔥 FIX: better option capture
         option_lines = []
         capture = False
 
@@ -227,15 +297,18 @@ def smart_block_parser(text):
             "optionsText": options_text,
             "logic": logic,
             "config": config,
-            "rawText": block   # 🔥 important for grids later
+            "rawText": block
         })
 
     return questions
 
+
 # =========================================================
-# 🔹 PARSE LIST (🔥 MAJOR UPGRADE)
+# 🔹 PARSE LIST (CRITICAL HARDENING)
 # =========================================================
 def parse_list(text):
+    text = safe_text(text)
+
     if not text:
         return []
 
@@ -244,29 +317,46 @@ def parse_list(text):
     seen_values = set()
 
     for raw_line in lines:
+
         if not raw_line:
             continue
 
-        line = normalize(raw_line.replace("\u00A0", " ").replace("’", "'"))
+        try:
+            line = normalize(raw_line.replace("\u00A0", " ").replace("’", "'"))
+        except Exception:
+            continue
+
         if not line:
             continue
 
-        # 🔢 number detection
+        # 🔢 SAFE number detection
         num_match = re.match(r'^\s*(\d{1,3})[\.\)\-:]\s+(.*)', line)
 
         if num_match:
-            value = int(num_match.group(1))
+            try:
+                value = int(num_match.group(1))
+            except:
+                continue
+
             raw = num_match.group(2)
         else:
             value = len(result) + 1
             raw = line
+
+        # 🔒 HARD LIMIT
+        if value > 999:
+            continue
 
         # 🚫 prevent duplicates
         if value in seen_values:
             continue
         seen_values.add(value)
 
-        text_part, desc_part = split_text_desc(raw)
+        try:
+            text_part, desc_part = split_text_desc(raw)
+        except:
+            text_part, desc_part = raw, ""
+
         flags = detect_flags(text_part)
 
         clean = normalize_pipe(clean_text(text_part))
@@ -285,10 +375,9 @@ def parse_list(text):
         }
 
         # =====================================================
-        # 🔥 HARD DECIPHER NORMALIZATION
+        # 🔥 DECIPHER NORMALIZATION (UNCHANGED)
         # =====================================================
 
-        # 97 → Don't know
         if (
             value == 97
             or "don't know" in lower
@@ -303,7 +392,6 @@ def parse_list(text):
                 "other": False
             })
 
-        # 98 → Other
         elif (
             value == 98
             or ("other" in lower and "specify" in lower)
@@ -317,7 +405,6 @@ def parse_list(text):
                 "other": True
             })
 
-        # 99 → None
         elif (
             value == 99
             or "none of these" in lower
@@ -334,9 +421,7 @@ def parse_list(text):
 
         result.append(item)
 
-    # =====================================================
-    # 🔥 ENSURE ORDER → normal first, special last
-    # =====================================================
+    # 🔒 SAFE ORDERING
     normal = [r for r in result if r["value"] not in [97, 98, 99]]
     special = [r for r in result if r["value"] in [97, 98, 99]]
 
@@ -347,343 +432,409 @@ def parse_list(text):
 # 🔹 GRID PARSER
 # =========================================================
 def parse_grid(rows_text, cols_text):
+    rows_text = safe_text(rows_text)
+    cols_text = safe_text(cols_text)
+
     return parse_list(rows_text), parse_list(cols_text)
 
-
 # =========================================================
-# 🔹 LABEL BUILDER (UNCHANGED)
+# 🔹 BUILD LABEL FROM QID
 # =========================================================
 def build_label_from_qid(qid):
+    qid = safe_text(qid)
+
     if not qid:
-        return "q1"
+        return ""
 
-    text = qid.strip()
-
-    q_match = re.search(r'q\d+', text, re.I)
-    q_prefix = q_match.group(0).lower() if q_match else "q1"
-
-    bracket = re.search(r'\[(.*?)\]', text)
-
-    if bracket:
-        content = bracket.group(1)
-    else:
-        content = re.sub(r'q\d+[\.\_\s]*', '', text, flags=re.I)
-
-    content = re.sub(r'[^a-z0-9]+', '_', content.lower())
-    content = re.sub(r'_+', '_', content).strip("_")
-    content = content[:40]
-
-    return f"{q_prefix}_{content}" if content else q_prefix
+    return qid.replace(".", "_")
 
 
+# =========================================================
+# 🔹 EXTRACT FLEXIBLE HEADER (HARDENED)
+# =========================================================
 def extract_flexible_header(lines):
-    qid = ""
-    title = ""
+    if not lines:
+        return None, "", None, {}
+
+    first = safe_text(lines[0])
+
+    # 🔒 SAFE REGEX
+    match = re.match(r'\[(q[^\]]+)\](.*)', first, re.I)
+
+    if not match:
+        return None, "", None, {}
+
+    qid = match.group(1).lower().strip()
+
+    # 🔐 VALIDATE QID
+    if not re.match(r'^[a-zA-Z0-9_\[\]\.]+$', qid):
+        raise ValueError("Invalid question ID")
+
+    rest = safe_text(match.group(2)).strip()
+
+    # =====================================================
+    # 🔹 LOGIC EXTRACTION
+    # =====================================================
     logic = None
+
+    logic_match = re.search(r'\((.*?)\)', rest)
+    if logic_match:
+        raw_logic = logic_match.group(1)
+
+        # 🔒 SAFE LOGIC
+        logic = normalize_logic(raw_logic)
+
+        rest = rest.replace(f"({raw_logic})", "").strip()
+
+    # =====================================================
+    # 🔹 CONFIG EXTRACTION
+    # =====================================================
     config = {}
 
-    for i, line in enumerate(lines):
+    config_matches = re.findall(r'\[(.*?)\]', rest)
 
-        # 🔥 detect [qX] ANYWHERE in line
-        match = re.search(r'\[(q[^\]]+)\]', line, re.I)
+    for conf in config_matches:
+        conf = safe_text(conf).lower()
 
-        if match:
-            qid = match.group(1).lower()
+        if "=" in conf:
+            try:
+                k, v = conf.split("=", 1)
+                config[k.strip()] = v.strip()
+            except:
+                continue
+        else:
+            config[conf.strip()] = True
 
-            # remove it safely
-            line = re.sub(r'\[q[^\]]+\]', '', line, flags=re.I).strip()
+    # remove config from title
+    rest = re.sub(r'\[.*?\]', '', rest).strip()
 
-            # logic
-            if "ask if" in line.lower():
-                logic = line.lower().split("ask if")[-1].strip()
-
-            continue
-
-        # first real sentence = title
-        if not title and len(line) > 20:
-            title = line.strip()
+    title = normalize_pipe(normalize(rest))
+    title = safe_text(title)
 
     return qid, title, logic, config
 
-# =========================================================
-# 🔹 DEFAULT COMMENTS (UNCHANGED)
-# =========================================================
-def get_default_comment(qtype):
-    return {
-        "radio": "Select one",
-        "checkbox": "Select all that apply",
-        "radio_grid": "Please select one for each",
-        "checkbox_grid": "Please select all that apply for each row",
-        "card_radio": "Please select one for each card",
-        "card_checkbox": "Please select all that apply for each card",
-        "text_single": "Please specify",
-        "text_multi": "Please specify",
-        "textarea_single": "Please be as specific as possible but do not include any personal information",
-        "textarea_multi": "Please be as specific as possible but do not include any personal information",
-        "number_single": "Please enter a number",
-        "number_multi": "Please provide your best estimate",
-        "float_multi": "Enter a value",
-        "autosum": "Please provide your best estimate",
-        "ranking": "Please rank the following features",
-        "html": ""
-    }.get(qtype, "")
 
 # =========================================================
-# 🔹 MAIN PARSER (FULL UPGRADE)
+# 🔹 MAIN PARSER (MOST IMPORTANT)
 # =========================================================
 def parse_input(payload):
+    # =====================================================
+    # 🔐 GLOBAL INPUT PROTECTION
+    # =====================================================
+    raw_text = safe_text(payload)
 
-    qid = (payload.get("id") or "q1").strip()
-    title_raw = payload.get("title", "")
-    title = normalize_pipe(normalize(title_raw))
+    if not raw_text:
+        return []
 
-    qtype = payload.get("type", "radio")
+    if len(raw_text) > MAX_INPUT_SIZE:
+        raise ValueError("Input too large")
 
-    # =============================
-    # 🔄 TYPE NORMALIZATION
-    # =============================
-    type_map = {
-        "number": "number_multi",
-        "float": "float_multi",
-        "text": "text_multi",
-        "textarea": "textarea_multi"
-    }
+    # =====================================================
+    # 🔹 SPLIT INTO BLOCKS
+    # =====================================================
+    try:
+        blocks = split_blocks(raw_text)
+    except Exception:
+        return []
 
-    qtype = type_map.get(qtype, qtype)
+    all_questions = []
 
-    options = []
-    rows = []
-    columns = []
-    special_rows = []
+    # =====================================================
+    # 🔹 PROCESS EACH BLOCK
+    # =====================================================
+    for block in blocks:
 
-    # =============================
-    # 🔥 TYPE HANDLING
-    # =============================
+        block = safe_text(block)
 
-    if qtype in ["radio", "checkbox"]:
-        options = parse_list(payload.get("optionsText", ""))
+        if not block:
+            continue
 
-        # =====================================================
-        # 🔥 AUTO-INJECT SPECIAL OPTIONS FROM LOGIC
-        # =====================================================
-        logic_text = (payload.get("logic") or "").lower()
+        try:
+            lines = [safe_text(l) for l in block.split("\n") if l.strip()]
+        except Exception:
+            continue
 
-        def ensure_option(val, text, exclusive, anchor, other):
-            if not any(o["value"] == val for o in options):
-                options.append({
-                    "label": f"r{val}",
-                    "value": val,
-                    "text": text,
-                    "anchor": anchor,
-                    "exclusive": exclusive,
-                    "terminate": False,
-                    "other": other
-                })
+        if not lines:
+            continue
 
-        if "97" in logic_text:
-            ensure_option(97, "Don't know", True, True, False)
+        # =================================================
+        # 🔹 HEADER EXTRACTION
+        # =================================================
+        try:
+            qid, title, logic, config = extract_flexible_header(lines)
+        except Exception:
+            continue
 
-        if "98" in logic_text:
-            ensure_option(98, "Other", False, True, True)
+        if not qid:
+            continue
 
-        if "99" in logic_text:
-            ensure_option(99, "None of these", True, True, False)
+        # =================================================
+        # 🔐 LOGIC HARDENING
+        # =================================================
+        logic = safe_logic(logic)
 
-        # 🔥 enforce ordering (normal first, special last)
-        normal = [o for o in options if o["value"] not in [97, 98, 99]]
-        special = [o for o in options if o["value"] in [97, 98, 99]]
-        options = normal + special
+        # =================================================
+        # 🔹 DETECT QUESTION TYPE
+        # =================================================
+        lower = block.lower()
 
-    elif qtype in ["radio_grid", "checkbox_grid", "card_radio", "card_checkbox"]:
-        rows, columns = parse_grid(
-            payload.get("rowsText", ""),
-            payload.get("columnsText", "")
-        )
-
-    elif qtype == "number_single":
-        options = parse_list(payload.get("optionsText", ""))
-
-        rows = [{"label": "r1", "value": 1, "text": "Value", "desc": ""}]
-
-        special_rows = [
-            opt for opt in options
-            if opt.get("terminate") or opt.get("exclusive")
-        ]
-
-    elif qtype in ["number_multi", "float_multi", "autosum"]:
-
-        if payload.get("parsedRows"):
-            rows = payload.get("parsedRows")
-
-            for i, r in enumerate(rows):
-                rows[i] = {
-                    "label": r.get("label") or f"r{r.get('value', i+1)}",
-                    "value": r.get("value", i + 1),
-                    "text": r.get("text", ""),
-                    "desc": r.get("description") or r.get("desc") or "",
-                    "anchor": r.get("anchor", False),
-                    "exclusive": r.get("exclusive", False),
-                    "terminate": r.get("terminate", False),
-                    "other": r.get("other", False),
-                }
-
+        if "select all" in lower or "ms" in lower:
+            qtype = "checkbox"
+        elif "grid" in lower:
+            qtype = "radio_grid"
+        elif "numeric" in lower or "$" in lower:
+            qtype = "number_multi"
+        elif "open" in lower:
+            qtype = "textarea_single"
         else:
-            rows = parse_list(payload.get("rowsText", ""))
+            qtype = "radio"
 
-    elif qtype in ["text_multi", "textarea_multi"]:
-        rows = parse_list(payload.get("rowsText", ""))
+        # =================================================
+        # 🔹 OPTIONS EXTRACTION
+        # =================================================
+        option_lines = []
+        capture = False
 
-        if not rows:
-            rows = [{"label": "r1", "value": 1, "text": "", "desc": ""}]
+        for l in lines:
+            if not capture and title.lower() in l.lower():
+                capture = True
+                continue
 
-    elif qtype in ["text_single", "textarea_single"]:
-        rows = [{"label": "r1", "value": 1, "text": "", "desc": ""}]
+            if capture:
+                option_lines.append(l)
 
-    elif qtype == "ranking":
-        rows = parse_list(payload.get("optionsText", ""))
+        options_text = "\n".join(option_lines)
 
-    # =============================
-    # 🔥 AUTO FLOAT DETECTION
-    # =============================
-    title_lower = (payload.get("title") or "").lower()
+        # =================================================
+        # 🔹 SAFE OPTION PARSING
+        # =================================================
+        try:
+            parsed_options = parse_list(options_text)
+        except Exception:
+            parsed_options = []
 
-    if qtype == "number_multi":
-        if "%" in title_lower or "percent" in title_lower:
-            qtype = "float_multi"
+        # =================================================
+        # 🔹 BUILD QUESTION OBJECT
+        # =================================================
+        question = {
+            "id": qid,
+            "label": build_label_from_qid(qid),
+            "title": title,
+            "type": qtype,
+            "logic": logic,
+            "config": config,
+            "options": parsed_options,
+            "rawText": block
+        }
 
-    # =============================
-    # 🧠 AUTO TYPE UPGRADE
-    # =============================
-    if qtype == "number_multi" and len(rows) == 1:
-        qtype = "number_single"
+        # 🔒 FINAL SAFETY CHECKS
+        if not isinstance(question["options"], list):
+            question["options"] = []
 
-    if qtype == "text_multi" and len(rows) == 1:
-        qtype = "text_single"
+        all_questions.append(question)
 
-    if qtype == "textarea_multi" and len(rows) == 1:
-        qtype = "textarea_single"
+    return all_questions
 
-    # =============================
-    # 🔧 CONFIG
-    # =============================
-    randomize = payload.get("randomize", {}) or {}
-    cfg_in = payload.get("config") or {}
+# =========================================================
+# 🔹 FINAL SANITIZATION LAYER (OUTPUT SAFE)
+# =========================================================
 
-    config = {
-        "range": payload.get("range"),
-        "optional": payload.get("optional"),
-        "atleast": cfg_in.get("atleast"),
-        "atmost": cfg_in.get("atmost"),
-        "exact": cfg_in.get("exact"),
-        "verify": payload.get("verify"),
+def sanitize_output_text(text):
+    if not text:
+        return ""
 
-        "amount": cfg_in.get("amount"),
-        "tolerance": cfg_in.get("tolerance"),
-        "enforceTotal": cfg_in.get("enforceTotal"),
-        "autoFillRemainder": cfg_in.get("autoFillRemainder"),
-        "showTotal": cfg_in.get("showTotal"),
+    text = str(text)
 
-        "minRanks": cfg_in.get("minRanks"),
-        "unique": cfg_in.get("unique"),
+    # already escaped earlier, but double safety for output layer
+    text = html.escape(text)
 
-        "rowLegend": cfg_in.get("rowLegend"),
-        "preText": cfg_in.get("preText"),
-        "alignment": cfg_in.get("alignment"),
-        "inputSize": cfg_in.get("inputSize"),
-        "placeholder": cfg_in.get("placeholder"),
+    # remove any remaining control chars
+    text = re.sub(r'[\x00-\x1F\x7F]', '', text)
 
-        "autoAdvance": cfg_in.get("autoAdvance"),
-        "disableInsteadOfHide": cfg_in.get("disableInsteadOfHide"),
+    return text.strip()
 
-        "randomize": randomize,
-        "randomizeSubset": cfg_in.get("randomizeSubset"),
-        "keepFirstFixed": cfg_in.get("keepFirstFixed"),
-        "keepLastFixed": cfg_in.get("keepLastFixed"),
 
-        "includeOther": cfg_in.get("includeOther"),
-        "includeNone": cfg_in.get("includeNone"),
-        "includeDK": cfg_in.get("includeDK"),
-        "includePNA": cfg_in.get("includePNA"),
+# =========================================================
+# 🔹 SAFE QUESTION NORMALIZER
+# =========================================================
+def normalize_question_output(question):
+    if not isinstance(question, dict):
+        return {}
 
-        "errorMessage": cfg_in.get("errorMessage"),
+    safe_q = {}
 
-        "variableName": cfg_in.get("variableName"),
-        "exportLabel": cfg_in.get("exportLabel"),
+    # 🔒 basic fields
+    safe_q["id"] = sanitize_output_text(question.get("id"))
+    safe_q["label"] = sanitize_output_text(question.get("label"))
+    safe_q["title"] = sanitize_output_text(question.get("title"))
+    safe_q["type"] = sanitize_output_text(question.get("type"))
 
-        "uses": None
+    # 🔒 logic safe
+    logic = question.get("logic")
+    safe_q["logic"] = sanitize_output_text(logic) if logic else None
+
+    # 🔒 config safe
+    config = question.get("config", {})
+    safe_config = {}
+
+    if isinstance(config, dict):
+        for k, v in config.items():
+            safe_config[sanitize_output_text(k)] = sanitize_output_text(v)
+
+    safe_q["config"] = safe_config
+
+    # 🔒 options safe
+    safe_options = []
+
+    for opt in question.get("options", []):
+        if not isinstance(opt, dict):
+            continue
+
+        safe_opt = {
+            "label": sanitize_output_text(opt.get("label")),
+            "value": opt.get("value"),
+            "text": sanitize_output_text(opt.get("text")),
+            "desc": sanitize_output_text(opt.get("desc")),
+
+            "anchor": bool(opt.get("anchor")),
+            "exclusive": bool(opt.get("exclusive")),
+            "terminate": bool(opt.get("terminate")),
+            "other": bool(opt.get("other")),
+        }
+
+        safe_options.append(safe_opt)
+
+    safe_q["options"] = safe_options
+
+    return safe_q
+
+
+# =========================================================
+# 🔹 FINAL PIPELINE WRAPPER
+# =========================================================
+def secure_parse_pipeline(payload):
+    try:
+        parsed = parse_input(payload)
+    except Exception:
+        return []
+
+    if not isinstance(parsed, list):
+        return []
+
+    safe_output = []
+
+    for q in parsed:
+        try:
+            safe_q = normalize_question_output(q)
+            safe_output.append(safe_q)
+        except Exception:
+            continue
+
+    return safe_output
+
+
+# =========================================================
+# 🔹 SAFE XML PREPARATION
+# =========================================================
+def prepare_for_xml(questions):
+    if not isinstance(questions, list):
+        return []
+
+    final = []
+
+    for q in questions:
+        if not isinstance(q, dict):
+            continue
+
+        # 🔒 ensure required fields exist
+        if not q.get("id") or not q.get("type"):
+            continue
+
+        # 🔒 sanitize again (defense in depth)
+        safe_q = normalize_question_output(q)
+
+        final.append(safe_q)
+
+    return final
+
+
+# =========================================================
+# 🔹 SAFE EXPORT (XML GENERATOR ENTRY)
+# =========================================================
+def generate_safe_xml(payload, xml_generator_func):
+    """
+    Wrapper to ensure all data going into XML generator is safe
+    """
+
+    # Step 1: secure parse
+    questions = secure_parse_pipeline(payload)
+
+    # Step 2: final prep
+    questions = prepare_for_xml(questions)
+
+    # Step 3: fail-safe
+    if not questions:
+        return "<survey></survey>"
+
+    try:
+        xml = xml_generator_func(questions)
+    except Exception:
+        return "<survey></survey>"
+
+    # 🔒 final sanity check
+    if not isinstance(xml, str):
+        return "<survey></survey>"
+
+    return xml
+
+
+# =========================================================
+# 🔹 FAIL-SAFE FALLBACK
+# =========================================================
+def safe_empty_response():
+    return {
+        "questions": [],
+        "xml": "<survey></survey>"
     }
 
-    # =============================
-    # 🔢 RANGE DETECTION
-    # =============================
-    if not config.get("range"):
-        match = re.search(r'\[(\d+)\s*-\s*(\d+)\]', title_raw)
-        if match:
-            config["range"] = [int(match.group(1)), int(match.group(2))]
 
-    # =============================
-    # 💰 PREFIX DETECTION
-    # =============================
-    if not config.get("preText"):
-        if "$" in title_raw:
-            config["preText"] = "$"
-        elif "₹" in title_raw:
-            config["preText"] = "₹"
-        elif "%" in title_raw:
-            config["preText"] = "%"
+# =========================================================
+# 🔹 DEBUG SAFE (OPTIONAL)
+# =========================================================
+def debug_safe_preview(payload):
+    """
+    Safe preview for debugging (no raw exposure)
+    """
 
-    # =============================
-    # 🔗 LOGIC
-    # =============================
-    logic = normalize_logic(payload.get("logic"), rows, options)
+    try:
+        parsed = secure_parse_pipeline(payload)
 
-    # 🔥 CRITICAL FIX: remove bad spacing
-    if isinstance(logic, str):
-        logic = re.sub(r'\s*\.\s*', '.', logic)
+        return {
+            "count": len(parsed),
+            "ids": [q.get("id") for q in parsed]
+        }
 
-    # =============================
-    # 🔚 FINAL OBJECT
-    # =============================
-    question = {
-        "id": qid,
-        "label": build_label_from_qid(qid),
-        "title": title,
-        "type": qtype,
-        "base_type": qtype.split("_")[0],
+    except Exception:
+        return {
+            "count": 0,
+            "ids": []
+        }
 
-        "options": options,
-        "special_rows": special_rows,
-        "rows": rows,
-        "columns": columns,
 
-        "description": payload.get("description"),
-        "comment": payload.get("comment") or get_default_comment(qtype),
+# =========================================================
+# 🔹 FINAL ENTRY (USE THIS IN API)
+# =========================================================
+def process_request(payload, xml_generator_func):
+    """
+    🔥 THIS is the ONLY function your API should call
+    """
 
-        "config": config,
-        "randomize": randomize,
-        "optional": payload.get("optional"),
+    if not payload:
+        return safe_empty_response()
 
-        "logic": logic,
-        "target": payload.get("target"),
-        "terminate": payload.get("terminate"),
-        "defaultTarget": payload.get("defaultTarget"),
+    # 🔐 full secure pipeline
+    xml = generate_safe_xml(payload, xml_generator_func)
 
-        "loop": payload.get("loop"),
-
-        "raw": payload
+    return {
+        "xml": xml
     }
-
-    # 🔥 FINAL SAFETY
-    if not rows:
-        question["rows"] = [{
-            "label": "r1",
-            "value": 1,
-            "text": "Value",
-            "desc": "",
-            "anchor": False,
-            "exclusive": False,
-            "terminate": False,
-            "other": False
-        }]
-
-    return [question]

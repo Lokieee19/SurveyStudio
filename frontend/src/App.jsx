@@ -1126,15 +1126,32 @@ export default function App() {
         <Login onLogin={setUser} />
       ) : (
     
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span>Welcome: {user}</span>
-        <button onClick={() => {
-          logout();
-          setUser(null);
-        }}>
-          Logout
-        </button>
+      <div style={styles.page}>
+        <div style={styles.header}>
+
+        <div style={{ maxWidth: "1400px", margin: "0 auto", width: "100%" }}>
+        <div>
+          <h1 style={styles.logo}>Survey Studio</h1>
+          <div style={styles.subtitle}>
+            XML Builder • Internal Tool
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <span style={{ fontSize: "12px", color: "#64748b" }}>
+            {user}
+          </span>
+
+          <button
+            style={styles.btnGhost}
+            onClick={() => {
+              logout();
+              setUser(null);
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
         {/* MAIN GRID */}
@@ -2195,7 +2212,7 @@ export default function App() {
                 />
               </div>
             )}
-
+            </div> {/* container */}
           </div>
         </div>
       </div>
@@ -2803,7 +2820,7 @@ export const styles = {
 
   main: {
     display: "grid",
-    gridTemplateColumns: "600px minmax(0,1fr)",
+    gridTemplateColumns: "380px 1fr",
     height: "calc(100vh - 64px)",
   },
 
@@ -2816,12 +2833,11 @@ export const styles = {
     padding: "18px",
 
     overflowY: "auto",
-    minWidth: 0, 
+    minWidth: 0,
 
-    background: "rgba(248,250,252,0.6)",
-    backdropFilter: "blur(10px)",
+    background: "#f8fafc",
 
-    borderRight: "1px solid rgba(226,232,240,0.5)",
+    borderRight: "1px solid #e2e8f0",
   },
 
   /* ================= RIGHT PANEL ================= */
@@ -2830,11 +2846,10 @@ export const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "18px",
-    padding: "24px",
+    padding: "28px",
     overflow: "auto",
 
-    background: "rgba(241,245,249,0.6)",
-    backdropFilter: "blur(10px)",
+    background: "linear-gradient(180deg,#f8fafc,#eef2ff)",
   },
 
   /* ================= CARD SYSTEM ================= */
@@ -2871,15 +2886,16 @@ export const styles = {
   },
 
   previewCard: {
-    background: "rgba(255,255,255,0.9)",
+    background: "rgba(255,255,255,0.95)",
     backdropFilter: "blur(16px)",
 
     borderRadius: "20px",
-    padding: "32px",
+    padding: "36px",
 
     border: "1px solid rgba(255,255,255,0.7)",
 
-    maxWidth: "760px",
+    width: "100%",
+    maxWidth: "1100px",
     margin: "0 auto",
 
     boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
@@ -3134,13 +3150,12 @@ export const styles = {
     display: "flex",
     gap: "12px",
 
-    padding: "14px",
+    padding: "16px",
 
-    background: "rgba(255,255,255,0.75)",
-    backdropFilter: "blur(14px)",
+    background: "rgba(255,255,255,0.9)",
+    backdropFilter: "blur(16px)",
 
     borderRadius: "16px",
-    border: "1px solid rgba(255,255,255,0.6)",
 
     boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
   },
