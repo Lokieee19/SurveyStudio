@@ -1125,1116 +1125,1245 @@ export default function App() {
       {!user ? (
         <Login onLogin={setUser} />
       ) : (
-    
-      <div style={styles.page}>
-        <div style={styles.header}>
 
-        <div style={{ maxWidth: "1400px", margin: "0 auto", width: "100%" }}>
-        <div>
-          <h1 style={styles.logo}>Survey Studio</h1>
-          <div style={styles.subtitle}>
-            XML Builder • Internal Tool
-          </div>
-        </div>
+        <div style={styles.appShell}>
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <span style={{ fontSize: "12px", color: "#64748b" }}>
-            {user}
-          </span>
-
-          <button
-            style={styles.btnGhost}
-            onClick={() => {
-              logout();
-              setUser(null);
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-
-        {/* MAIN GRID */}
-        <div style={styles.main}>
-          {/* LEFT PANEL */}
           {/* =====================================================
-            🧠 LEFT PANEL (FULLY RESTRUCTURED WITH TABS)
+            🔝 TOP BAR (GLOBAL HEADER)
           ===================================================== */}
+          <div style={styles.topBar}>
+            <div style={styles.topLeft}>
+              <h2 style={styles.appTitle}>Survey Studio</h2>
+            </div>
 
-          <div style={styles.leftPanel}>
+            <div style={styles.topRight}>
+              <span style={styles.userText}>Welcome: {user}</span>
+              <button
+                style={styles.logoutBtn}
+                onClick={() => {
+                  logout();
+                  setUser(null);
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
 
-            {/* =========================
-                🔥 TAB BAR
-            ========================= */}
-            <div style={styles.tabBar}>
+          {/* =====================================================
+            🧱 MAIN LAYOUT (SIDEBAR + CONTENT + RIGHT PANEL)
+          ===================================================== */}
+          <div style={styles.layout}>
+
+            {/* =====================================================
+              📌 SIDEBAR (PRIMARY NAVIGATION)
+            ===================================================== */}
+            <div style={styles.sidebar}>
+
+              <div style={styles.sidebarHeader}>
+                Builder
+              </div>
+
               {[
                 { key: "smart", label: "Smart Paste" },
-                { key: "setup", label: " Question Setup" },
-                { key: "answers", label: "Option Edit" },
-                { key: "logic", label: "Routing & Logic" },
-                { key: "advanced", label: "Advanced Options" },
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActivePanel(tab.key)}
+                { key: "setup", label: "Question Setup" },
+                { key: "answers", label: "Answers" },
+                { key: "logic", label: "Logic" },
+                { key: "advanced", label: "Advanced" },
+              ].map((item) => (
+                <div
+                  key={item.key}
+                  onClick={() => setActivePanel(item.key)}
                   style={{
-                    ...styles.tabBtn,
-                    ...(activePanel === tab.key ? styles.tabBtnActive : {})
+                    ...styles.sidebarItem,
+                    ...(activePanel === item.key
+                      ? styles.sidebarItemActive
+                      : {})
                   }}
                 >
-                  {tab.label}
-                </button>
+                  {item.label}
+                </div>
               ))}
+
             </div>
 
-            {/* =========================
-                🚀 MULTI QUESTION CONTROLS
-            ========================= */}
-            <div style={styles.multiWrap}>
+            {/* =====================================================
+              🧩 CENTER CONTENT (MAIN WORK AREA)
+            ===================================================== */}
+            <div style={styles.contentArea}>
 
-              <button
-                style={styles.addQBtn}
-                onClick={addQuestion}
-              >
-                + Add Question
-              </button>
+              {/* =====================================================
+                🧭 QUESTION NAVIGATION STRIP
+              ===================================================== */}
+              <div style={styles.questionBar}>
 
-              <div style={styles.qTabs}>
-                {questions.map((q, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      ...styles.qTab,
-                      ...(i === activeIndex ? styles.qTabActive : {})
-                    }}
-                    onClick={() => {
-                      if (i === activeIndex) return;
-                      setActiveIndex(i);
-                      setActivePreviewLabel(questions[i]?.id);
-                    }}
-                  >
-                    <span>{q.id || `Q${i + 1}`}</span>
+                <div style={styles.questionTabs}>
+                  {questions.map((q, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        ...styles.qTab,
+                        ...(i === activeIndex ? styles.qTabActive : {})
+                      }}
+                      onClick={() => {
+                        if (i === activeIndex) return;
+                        setActiveIndex(i);
+                        setActivePreviewLabel(questions[i]?.id);
+                      }}
+                    >
+                      <span>{q.id || `Q${i + 1}`}</span>
 
-                    <div style={styles.qTabActions}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          duplicateQuestion(i);
-                        }}
-                      >
-                        ⧉
-                      </button>
+                      <div style={styles.qTabActions}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duplicateQuestion(i);
+                          }}
+                        >
+                          ⧉
+                        </button>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteQuestion(i);
-                        }}
-                      >
-                        ✕
-                      </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteQuestion(i);
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  style={styles.addQBtn}
+                  onClick={addQuestion}
+                >
+                  + Add Question
+                </button>
+
+              </div>
+
+              {/* =====================================================
+                📦 PANEL CONTENT (CHANGES WITH SIDEBAR)
+              ===================================================== */}
+              <div style={styles.panelContent}>
+
+                {/* =====================================================
+                  ⚡ SMART PASTE
+                ===================================================== */}
+                {activePanel === "smart" && (
+                  <div style={styles.card}>
+                    <SectionHeader
+                      title="Smart Paste"
+                      subtitle="Paste questionnaire block and auto-fill"
+                    />
+
+                    <textarea
+                      placeholder={`Paste here...
+
+  Question Type: Single Select / Radio
+  Label #@ Q1 Comp Size
+  Title #@ How many employees work at your company?
+  Options:
+  1. Option A
+  2. Option B`}
+                      value={form.smartPasteText || ""}
+                      onChange={(e) =>
+                        handleChange("smartPasteText", e.target.value)
+                      }
+                      style={{
+                        ...styles.optionTextarea,
+                        minHeight: "220px",
+                        border: "2px dashed #c7d2fe",
+                        background: "#f8fafc"
+                      }}
+                    />
+
+                    <button
+                      style={styles.smartPasteBtn}
+                      onClick={() => handleSmartPaste(form.smartPasteText)}
+                    >
+                      ⚡ Smart Paste
+                    </button>
+                  </div>
+                )}
+
+                {/* =====================================================
+                  🧩 QUESTION SETUP
+                ===================================================== */}
+                {activePanel === "setup" && (
+                  <div style={styles.cardPrimary}>
+                    <SectionHeader
+                      title="Question Setup"
+                      subtitle="Define core question structure"
+                    />
+
+                    <div style={styles.grid2}>
+                      <Input
+                        label="Question ID"
+                        value={form.id}
+                        onChange={(v) => handleChange("id", v)}
+                        placeholder="e.g. q1_brand_awareness"
+                      />
+
+                      <Select
+                        label="Question Type"
+                        value={form.type}
+                        onChange={(v) => handleChange("type", v)}
+                        options={[
+                          { label: "Intro / HTML", value: "html" },
+                          { label: "Radio (Single Select)", value: "radio" },
+                          { label: "Checkbox (Multi Select)", value: "checkbox" },
+                          { label: "Grid - Radio", value: "radio_grid" },
+                          { label: "Grid - Checkbox", value: "checkbox_grid" },
+                          { label: "Card - Radio", value: "card_radio" },
+                          { label: "Card - Checkbox", value: "card_checkbox" },
+                          { label: "Number - Single", value: "number_single" },
+                          { label: "Number - Multiple", value: "number_multi" },
+                          { label: "Decimal - Multiple", value: "float_multi" },
+                          { label: "Text - Single", value: "text_single" },
+                          { label: "Text - Multiple", value: "text_multi" },
+                          { label: "Textarea - Single", value: "textarea_single" },
+                          { label: "Textarea - Multiple", value: "textarea_multi" },
+                          { label: "Ranking", value: "ranking" },
+                          { label: "Autosum", value: "autosum" },
+                        ]}
+                      />
+                    </div>
+
+                    <RichTextEditor
+                      label="Question Title"
+                      value={form.title}
+                      onChange={(v) => handleChange("title", v)}
+                      placeholder="Format using toolbar"
+                    />
+
+                    <RichTextEditor
+                      label="Description"
+                      value={form.description}
+                      onChange={(v) => handleChange("description", v)}
+                      placeholder="Add formatting like bold, italic etc."
+                    />
+
+                    <Textarea
+                      label="Internal Comment (XML)"
+                      value={form.comment}
+                      onChange={(v) => handleChange("comment", v)}
+                      placeholder="Internal notes, logic hints, client instructions"
+                    />
+                  </div>
+                )}
+                {/* =====================================================
+                  🧾 ANSWERS (MAIN BLOCK)
+                ===================================================== */}
+                {activePanel === "answers" && (
+                  <>
+
+                    {/* =====================================================
+                      🧾 ANSWER INPUT SECTION
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Answer Input"
+                        subtitle="Define answer structure"
+                      />
+
+                      {/* ================= HTML ================= */}
+                      {t === "html" && (
+                        <InfoBox text="Intro / informational block (no answers required)" />
+                      )}
+
+                      {/* ================= RADIO / CHECKBOX ================= */}
+                      {["radio", "checkbox"].includes(t) && (
+                        <Textarea
+                          label="Options"
+                          value={form.optionsText}
+                          onChange={(v) =>
+                            handleChange("optionsText", v)
+                          }
+                          placeholder={`1. Option A
+  2. Option B
+  3. Option C`}
+                        />
+                      )}
+
+                      {/* ================= GRID + CARD ================= */}
+                      {[
+                        "radio_grid",
+                        "checkbox_grid",
+                        "card_radio",
+                        "card_checkbox",
+                      ].includes(t) && (
+                        <>
+                          <Textarea
+                            label="Columns"
+                            value={form.columnsText}
+                            onChange={(v) =>
+                              handleChange("columnsText", v)
+                            }
+                            placeholder={`1. Strongly Agree
+  2. Agree
+  3. Neutral`}
+                          />
+
+                          <Textarea
+                            label="Rows"
+                            value={form.rowsText}
+                            onChange={(v) =>
+                              handleChange("rowsText", v)
+                            }
+                            placeholder={`1. Brand Trust
+  2. Product Quality`}
+                          />
+                        </>
+                      )}
+
+                      {/* ================= NUMBER SINGLE ================= */}
+                      {t === "number_single" && (
+                        <>
+                          <Input
+                            label="Value"
+                            value={form.optionsText}
+                            onChange={(v) =>
+                              handleChange("optionsText", v)
+                            }
+                            placeholder="Enter number"
+                          />
+
+                          <div style={styles.grid2}>
+                            <Input
+                              label="Min"
+                              value={form.rangeMin}
+                              onChange={(v) =>
+                                handleChange("rangeMin", v)
+                              }
+                            />
+
+                            <Input
+                              label="Max"
+                              value={form.rangeMax}
+                              onChange={(v) =>
+                                handleChange("rangeMax", v)
+                              }
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ================= NUMBER MULTI ================= */}
+                      {["number_multi", "float_multi"].includes(t) && (
+                        <>
+                          <Textarea
+                            label="Rows"
+                            value={form.rowsText}
+                            onChange={(v) =>
+                              handleChange("rowsText", v)
+                            }
+                            placeholder={`1. Category A
+  2. Category B`}
+                          />
+
+                          <div style={styles.grid2}>
+                            <Input
+                              label="Min"
+                              value={form.rangeMin}
+                              onChange={(v) =>
+                                handleChange("rangeMin", v)
+                              }
+                            />
+
+                            <Input
+                              label="Max"
+                              value={form.rangeMax}
+                              onChange={(v) =>
+                                handleChange("rangeMax", v)
+                              }
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ================= TEXT ================= */}
+                      {t === "text_single" && (
+                        <InfoBox text="User will enter a single-line response." />
+                      )}
+
+                      {t === "text_multi" && (
+                        <Textarea
+                          label="Fields"
+                          value={form.rowsText}
+                          onChange={(v) =>
+                            handleChange("rowsText", v)
+                          }
+                          placeholder={`1. Field 1
+  2. Field 2`}
+                        />
+                      )}
+
+                      {t === "textarea_single" && (
+                        <InfoBox text="User will enter a long-form response." />
+                      )}
+
+                      {t === "textarea_multi" && (
+                        <Textarea
+                          label="Fields"
+                          value={form.rowsText}
+                          onChange={(v) =>
+                            handleChange("rowsText", v)
+                          }
+                          placeholder={`1. Field 1
+  2. Field 2`}
+                        />
+                      )}
+
+                      {/* ================= RANKING ================= */}
+                      {t === "ranking" && (
+                        <Textarea
+                          label="Ranking Options"
+                          value={form.optionsText}
+                          onChange={(v) => handleChange("optionsText", v)}
+                          placeholder={`1. Feature 1
+  2. Feature 2
+  3. Feature 3`}
+                        />
+                      )}
+
+                      {/* ================= AUTOSUM ================= */}
+                      {t === "autosum" && (
+                        <div>
+                          <div style={styles.autoHeader}>
+                            <span>Autosum Rows</span>
+                            <button
+                              style={styles.addBtn}
+                              onClick={addAutosumRow}
+                            >
+                              + Add Row
+                            </button>
+                          </div>
+
+                          {form.autosumRows.map((row, i) => (
+                            <div key={i} style={styles.autoCard}>
+                              <div style={styles.autoIndex}>
+                                {i + 1}
+                              </div>
+
+                              <div style={{ flex: 1 }}>
+                                <Input
+                                  value={row.title}
+                                  onChange={(v) =>
+                                    handleAutosumChange(i, "title", v)
+                                  }
+                                  placeholder="Row Title"
+                                />
+
+                                <Input
+                                  value={row.desc}
+                                  onChange={(v) =>
+                                    handleAutosumChange(i, "desc", v)
+                                  }
+                                  placeholder="Description (optional)"
+                                />
+                              </div>
+
+                              <button
+                                style={styles.deleteBtn}
+                                onClick={() => removeAutosumRow(i)}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                    </div>
+
+                    {/* =====================================================
+                      🔧 OPTION EDITOR (SMART SECTION)
+                    ===================================================== */}
+                    {(
+                      ["radio","checkbox","ranking"].includes(form.type)
+                        ? form.parsedOptions?.length > 0
+                        : form.parsedRows?.length > 0
+                    ) && (
+                      <div style={styles.card}>
+                        <SectionHeader
+                          title="Option Editor"
+                          subtitle="Fine-tune labels, values & behavior"
+                        />
+
+                        {(
+                          ["radio","checkbox","ranking"].includes(form.type)
+                            ? form.parsedOptions
+                            : form.parsedRows
+                        ).map((opt, i) => {
+
+                          const isOptionType =
+                            ["radio","checkbox","ranking"].includes(form.type);
+
+                          const isLocked = [97, 98, 99].includes(opt.value);
+
+                          const updateField = (field, value) => {
+                            const updated = isOptionType
+                              ? [...form.parsedOptions]
+                              : [...form.parsedRows];
+
+                            updated[i] = enforceOptionRules({
+                              ...updated[i],
+                              [field]: field === "value" ? Number(value) : value
+                            });
+
+                            if (field === "value" || field === "text") {
+                              updated[i] = enforceOptionRules(updated[i]);
+                            }
+
+                            handleChange(
+                              isOptionType ? "parsedOptions" : "parsedRows",
+                              updated
+                            );
+                          };
+
+                          return (
+                            <div
+                              key={i}
+                              style={{
+                                ...styles.optionRow,
+                                background: isLocked ? "#fef3c7" : "#f9fafb"
+                              }}
+                            >
+
+                              {/* VALUE */}
+                              <input
+                                type="number"
+                                value={opt.value}
+                                onChange={(e) =>
+                                  updateField("value", Number(e.target.value))
+                                }
+                                style={styles.smallInput}
+                              />
+
+                              {/* TEXT */}
+                              <div style={{ flex: 1 }}>
+                                <RichTextEditor
+                                  label={`opt-${i}`}
+                                  value={opt.text}
+                                  onChange={(v) => updateField("text", v)}
+                                />
+                              </div>
+
+                              {/* FLAGS */}
+                              <div style={styles.optionRightInline}>
+
+                                <CheckInline
+                                  label="Anchor"
+                                  checked={opt.anchor || false}
+                                  onChange={(v) => updateField("anchor", v)}
+                                />
+
+                                <CheckInline
+                                  label="Exclusive"
+                                  checked={opt.exclusive || false}
+                                  onChange={(v) => updateField("exclusive", v)}
+                                />
+
+                                <CheckInline
+                                  label="Other"
+                                  checked={opt.other || false}
+                                  onChange={(v) => updateField("other", v)}
+                                />
+
+                                <CheckInline
+                                  label="Terminate"
+                                  checked={opt.terminate || false}
+                                  onChange={(v) => updateField("terminate", v)}
+                                />
+
+                              </div>
+
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                  </>
+                )}
+
+                {/* =====================================================
+                  🧠 LOGIC TAB
+                ===================================================== */}
+                {activePanel === "logic" && (
+                  <div style={styles.card}>
+                    <SectionHeader
+                      title="Logic Builder"
+                      subtitle="Display, skip & piping logic"
+                    />
+
+                    <div style={styles.logicContainer}>
+
+                      <div style={styles.logicBlock}>
+                        <h4 style={styles.logicTitle}>Display Logic</h4>
+                        <p style={styles.logicDesc}>
+                          Control when a question is shown based on previous answers.
+                        </p>
+                      </div>
+
+                      <div style={styles.logicBlock}>
+                        <h4 style={styles.logicTitle}>Skip Logic</h4>
+                        <p style={styles.logicDesc}>
+                          Redirect respondents to another question based on conditions.
+                        </p>
+                      </div>
+
+                      <div style={styles.logicBlock}>
+                        <h4 style={styles.logicTitle}>Answer Piping</h4>
+                        <p style={styles.logicDesc}>
+                          Inject previous answers into titles, descriptions or options.
+                        </p>
+                      </div>
+
+                      <div style={styles.logicPlaceholder}>
+                        Logic builder UI will be added here.
+                      </div>
+
                     </div>
                   </div>
-                ))}
-              </div>
+                )}
 
-            </div>
+                {/* =====================================================
+                  ⚙️ ADVANCED SETTINGS (RESTRUCTURED)
+                ===================================================== */}
+                {activePanel === "advanced" && (
+                  <div style={styles.advancedWrap}>
 
+                    {/* =====================================================
+                      ⚙️ CORE SETTINGS
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Core Settings"
+                        subtitle="Basic behavior & toggles"
+                      />
+
+                      <div style={styles.settingGroup}>
+
+                        <label style={styles.checkbox}>
+                          <input
+                            type="checkbox"
+                            checked={form.randomize.all}
+                            onChange={(e) =>
+                              handleChange("randomize", {
+                                rows: e.target.checked,
+                                columns: e.target.checked,
+                                all: e.target.checked,
+                              })
+                            }
+                          />
+                          Randomize All
+                        </label>
+
+                        <div style={styles.inlineChecks}>
+                          <Check
+                            label="Rows"
+                            checked={form.randomize.rows}
+                            onChange={(v) =>
+                              handleChange("randomize", {
+                                ...form.randomize,
+                                rows: v,
+                                all: false,
+                              })
+                            }
+                          />
+                          <Check
+                            label="Columns"
+                            checked={form.randomize.columns}
+                            onChange={(v) =>
+                              handleChange("randomize", {
+                                ...form.randomize,
+                                columns: v,
+                                all: false,
+                              })
+                            }
+                          />
+                        </div>
+
+                      </div>
+
+                      <Check
+                        label="Exclusive Option (None of the above)"
+                        checked={form.exclusive}
+                        onChange={(v) => handleChange("exclusive", v)}
+                      />
+
+                    </div>
+
+                    {/* =====================================================
+                      🧠 VALIDATION & RULES
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Validation & Rules"
+                        subtitle="Control response constraints"
+                      />
+
+                      <div style={styles.grid2}>
+                        <Input
+                          label="Minimum Required"
+                          value={form.config.atleast}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, atleast: v })
+                          }
+                        />
+
+                        <Input
+                          label="Maximum Allowed"
+                          value={form.config.atmost}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, atmost: v })
+                          }
+                        />
+                      </div>
+
+                      <div style={styles.grid2}>
+                        <Input
+                          label="Exact Selection"
+                          value={form.config.exact}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, exact: v })
+                          }
+                        />
+
+                        <Input
+                          label="Unique Constraint"
+                          value={form.config.unique}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, unique: v })
+                          }
+                        />
+                      </div>
+
+                      <Input
+                        label="Verify Rule"
+                        value={form.config.verify}
+                        onChange={(v) =>
+                          handleChange("config", { ...form.config, verify: v })
+                        }
+                        placeholder="range(0,100)"
+                      />
+
+                    </div>
+
+                    {/* =====================================================
+                      📊 DISPLAY SETTINGS
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Display Settings"
+                        subtitle="UI behavior & layout"
+                      />
+
+                      <div style={styles.grid2}>
+                        <Input
+                          label="Row Legend"
+                          value={form.config.rowLegend}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, rowLegend: v })
+                          }
+                        />
+
+                        <Input
+                          label="Prefix (₹ / $)"
+                          value={form.config.preText}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, preText: v })
+                          }
+                        />
+                      </div>
+
+                      <div style={styles.grid2}>
+                        <Select
+                          label="Alignment"
+                          value={form.config.alignment}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, alignment: v })
+                          }
+                          options={[
+                            { label: "Right", value: "right" },
+                            { label: "Left", value: "left" },
+                            { label: "Inline", value: "inline" },
+                          ]}
+                        />
+
+                        <Select
+                          label="Input Size"
+                          value={form.config.inputSize}
+                          onChange={(v) =>
+                            handleChange("config", { ...form.config, inputSize: v })
+                          }
+                          options={[
+                            { label: "Small", value: "small" },
+                            { label: "Medium", value: "medium" },
+                            { label: "Large", value: "large" },
+                          ]}
+                        />
+                      </div>
+
+                      <Input
+                        label="Placeholder"
+                        value={form.config.placeholder}
+                        onChange={(v) =>
+                          handleChange("config", { ...form.config, placeholder: v })
+                        }
+                      />
+
+                    </div>
+
+                    {/* =====================================================
+                      ⚡ BEHAVIOR SETTINGS
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Behavior Settings"
+                        subtitle="Interaction flow control"
+                      />
+
+                      <Check
+                        label="Auto Advance"
+                        checked={form.config.autoAdvance}
+                        onChange={(v) =>
+                          handleChange("config", { ...form.config, autoAdvance: v })
+                        }
+                      />
+
+                      <Check
+                        label="Disable Instead of Hide"
+                        checked={form.config.disableInsteadOfHide}
+                        onChange={(v) =>
+                          handleChange("config", { ...form.config, disableInsteadOfHide: v })
+                        }
+                      />
+
+                    </div>
+
+                    {/* =====================================================
+                      🔢 AUTOSUM ADVANCED (CONDITIONAL)
+                    ===================================================== */}
+                    {t === "autosum" && (
+                      <div style={styles.card}>
+                        <SectionHeader
+                          title="Autosum Advanced"
+                          subtitle="Control total logic & enforcement"
+                        />
+
+                        <div style={styles.grid2}>
+                          <Input
+                            label="Total Amount"
+                            value={form.config.amount}
+                            onChange={(v) =>
+                              handleChange("config", {
+                                ...form.config,
+                                amount: v
+                              })
+                            }
+                          />
+
+                          <Input
+                            label="Tolerance (±)"
+                            value={form.config.tolerance}
+                            onChange={(v) =>
+                              handleChange("config", {
+                                ...form.config,
+                                tolerance: v
+                              })
+                            }
+                          />
+                        </div>
+
+                        <Check
+                          label="Strict Total Enforcement"
+                          checked={form.config.enforceTotal}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              enforceTotal: v
+                            })
+                          }
+                        />
+
+                        <Check
+                          label="Auto-fill Remaining"
+                          checked={form.config.autoFillRemainder}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              autoFillRemainder: v
+                            })
+                          }
+                        />
+
+                        <Check
+                          label="Show Running Total"
+                          checked={form.config.showTotal}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              showTotal: v
+                            })
+                          }
+                        />
+                      </div>
+                    )}
+
+                    {/* =====================================================
+                      🎲 RANDOMIZATION ADVANCED
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Randomization Advanced"
+                        subtitle="Fine-tune random behavior"
+                      />
+
+                      <Input
+                        label="Random Subset (N)"
+                        value={form.config.randomizeSubset}
+                        onChange={(v) =>
+                          handleChange("config", {
+                            ...form.config,
+                            randomizeSubset: v
+                          })
+                        }
+                      />
+
+                      <div style={styles.inlineChecks}>
+                        <Check
+                          label="Keep First Fixed"
+                          checked={form.config.keepFirstFixed}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              keepFirstFixed: v
+                            })
+                          }
+                        />
+
+                        <Check
+                          label="Keep Last Fixed"
+                          checked={form.config.keepLastFixed}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              keepLastFixed: v
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {/* =====================================================
+                      ⭐ SPECIAL OPTIONS
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Special Options"
+                        subtitle="Prebuilt survey answer types"
+                      />
+
+                      <div style={styles.inlineChecksWrap}>
+                        <Check
+                          label="Include Other"
+                          checked={form.config.includeOther}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              includeOther: v
+                            })
+                          }
+                        />
+
+                        <Check
+                          label="Include None"
+                          checked={form.config.includeNone}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              includeNone: v
+                            })
+                          }
+                        />
+
+                        <Check
+                          label="Include Don't Know"
+                          checked={form.config.includeDK}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              includeDK: v
+                            })
+                          }
+                        />
+
+                        <Check
+                          label="Include PNA"
+                          checked={form.config.includePNA}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              includePNA: v
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {/* =====================================================
+                      🧾 DATA OUTPUT CONFIG
+                    ===================================================== */}
+                    <div style={styles.card}>
+                      <SectionHeader
+                        title="Data Output"
+                        subtitle="Export & variable configuration"
+                      />
+
+                      <div style={styles.grid2}>
+                        <Input
+                          label="Variable Name"
+                          value={form.config.variableName}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              variableName: v
+                            })
+                          }
+                        />
+
+                        <Input
+                          label="Export Label"
+                          value={form.config.exportLabel}
+                          onChange={(v) =>
+                            handleChange("config", {
+                              ...form.config,
+                              exportLabel: v
+                            })
+                          }
+                        />
+                      </div>
+
+                      <Input
+                        label="Custom Error Message"
+                        value={form.config.errorMessage}
+                        onChange={(v) =>
+                          handleChange("config", {
+                            ...form.config,
+                            errorMessage: v
+                          })
+                        }
+                      />
+                    </div>
+
+                    {/* =====================================================
+                      📊 COLUMN EDITOR (GRID TYPES ONLY)
+                    ===================================================== */}
+                    {form.parsedColumns?.length > 0 && (
+                      <div style={styles.card}>
+                        <SectionHeader
+                          title="Column Editor"
+                          subtitle="Adjust grid column behavior"
+                        />
+
+                        {form.parsedColumns.map((col, i) => (
+                          <div key={i} style={styles.optionRow}>
+
+                            <div style={styles.optionIndex}>
+                              {col.label}
+                            </div>
+
+                            <div style={{ flex: 1 }}>
+                              <RichTextEditor
+                                label={`col-${i}`}
+                                value={col.text}
+                                onChange={(v) => {
+                                  const updated = [...form.parsedColumns];
+                                  updated[i].text = v;
+                                  handleChange("parsedColumns", updated);
+                                }}
+                              />
+                            </div>
+
+                            <div style={styles.optionRightInline}>
+
+                              <CheckInline
+                                label="Exclusive"
+                                checked={col.exclusive || false}
+                                onChange={(v) => {
+                                  const updated = [...form.parsedColumns];
+                                  updated[i].exclusive = [97, 99].includes(col.value)
+                                    ? v
+                                    : false;
+                                  handleChange("parsedColumns", updated);
+                                }}
+                              />
+
+                              <CheckInline
+                                label="Anchor"
+                                checked={col.anchor || false}
+                                onChange={(v) => {
+                                  const updated = [...form.parsedColumns];
+                                  updated[i].anchor = v;
+                                  handleChange("parsedColumns", updated);
+                                }}
+                              />
+
+                            </div>
+
+                          </div>
+                        ))}
+
+                      </div>
+                    )}
+
+                  </div>
+                )}
+              </div> {/* END panelContent */}
             {/* =====================================================
-              ⚡ SMART TAB
+              👉 RIGHT PANEL (PREVIEW + OUTPUT)
             ===================================================== */}
-            {activePanel === "smart" && (
-              <div style={styles.card}>
-                <SectionHeader
-                  title="Smart Paste"
-                  subtitle="Paste questionnaire block and auto-fill"
-                />
+            <div style={styles.rightPanel}>
 
-                <textarea
-                  placeholder={`Paste here...
+              {/* =====================================================
+                🎯 ACTION BAR (STICKY TOP)
+              ===================================================== */}
+              <div style={styles.actionBar}>
 
-          Question Type: Single Select / Radio
-          Label #@ Q1 Comp Size
-          Title #@ How many employees work at your company?
-          Options:
-          1. Option A
-          2. Option B`}
-                  value={form.smartPasteText || ""}
-                  onChange={(e) =>
-                    handleChange("smartPasteText", e.target.value)
-                  }
-                  style={{
-                    ...styles.optionTextarea,
-                    minHeight: "180px",
-                    border: "2px dashed #c7d2fe",
-                    background: "#f8fafc"
-                  }}
-                />
+                <div style={styles.actionLeft}>
+                  <button
+                    onClick={handlePreview}
+                    style={styles.previewBtn}
+                  >
+                    🔍 Preview
+                  </button>
+                </div>
 
-                <button
-                  style={styles.smartPasteBtn}
-                  onClick={() => handleSmartPaste(form.smartPasteText)}
-                >
-                  ⚡ Smart Paste
-                </button>
-              </div>
-            )}
-
-            {/* =====================================================
-              🧩 SETUP TAB
-            ===================================================== */}
-            {activePanel === "setup" && (
-              <div style={styles.cardPrimary}>
-                <SectionHeader
-                  title="Question Setup"
-                  subtitle="Define core question structure"
-                />
-
-                <div style={styles.grid2}>
-                  <Input
-                    label="Question ID"
-                    value={form.id}
-                    onChange={(v) => handleChange("id", v)}
-                    placeholder="e.g. q1_brand_awareness"
-                  />
-
-                  <Select
-                    label="Question Type"
-                    value={form.type}
-                    onChange={(v) => handleChange("type", v)}
-                    options={[
-                      { label: "Intro / HTML", value: "html" },
-                      { label: "Radio (Single Select)", value: "radio" },
-                      { label: "Checkbox (Multi Select)", value: "checkbox" },
-                      { label: "Grid - Radio", value: "radio_grid" },
-                      { label: "Grid - Checkbox", value: "checkbox_grid" },
-                      { label: "Card - Radio", value: "card_radio" },
-                      { label: "Card - Checkbox", value: "card_checkbox" },
-                      { label: "Number - Single", value: "number_single" },
-                      { label: "Number - Multiple", value: "number_multi" },
-                      { label: "Decimal - Multiple", value: "float_multi" },
-                      { label: "Text - Single", value: "text_single" },
-                      { label: "Text - Multiple", value: "text_multi" },
-                      { label: "Textarea - Single", value: "textarea_single" },
-                      { label: "Textarea - Multiple", value: "textarea_multi" },
-                      { label: "Ranking", value: "ranking" },
-                      { label: "Autosum", value: "autosum" },
-                    ]}
+                <div style={styles.actionRight}>
+                  <GenerateButton
+                    onClick={handleGenerate}
+                    loading={loading}
+                    disabled={!parsed.length}
                   />
                 </div>
 
-                <RichTextEditor
-                  label="Question Title"
-                  value={form.title}
-                  onChange={(v) => handleChange("title", v)}
-                  placeholder="Format using toolbar"
-                />
-
-                <RichTextEditor
-                  label="Description"
-                  value={form.description}
-                  onChange={(v) => handleChange("description", v)}
-                  placeholder="Add formatting like bold, italic etc."
-                />
-
-                <Textarea
-                  label="Internal Comment (XML)"
-                  value={form.comment}
-                  onChange={(v) => handleChange("comment", v)}
-                  placeholder="Internal notes, logic hints, client instructions"
-                />
               </div>
-            )}
 
-            {/* =====================================================
-              🧾 ANSWERS TAB
-            ===================================================== */}
-            {activePanel === "answers" && (
-              <>
-                {/* =========================
-                    🧾 ANSWER INPUT
-                ========================= */}
-                <div style={styles.card}>
+              {/* =====================================================
+                👁️ LIVE PREVIEW
+              ===================================================== */}
+              <div style={styles.previewWrapper}>
+
+                <div style={styles.previewCard}>
                   <SectionHeader
-                    title="Answer Input"
-                    subtitle="Define answer structure"
+                    title="Live Preview"
+                    subtitle="Full survey rendering"
                   />
 
-                  {/* ================= HTML ================= */}
-                  {t === "html" && (
-                    <InfoBox text="Intro / informational block (no answers required)" />
-                  )}
+                  {parsed.length > 0 ? (() => {
 
-                  {/* ================= RADIO / CHECKBOX ================= */}
-                  {["radio", "checkbox"].includes(t) && (
-                    <Textarea
-                      label="Options"
-                      value={form.optionsText}
-                      onChange={(v) =>
-                        handleChange("optionsText", v)
-                      }
-                      placeholder={`1. Option A
-            2. Option B
-            3. Option C`}
-                    />
-                  )}
+                    const enrichedQuestions = parsed.map((q) => {
+                      const original =
+                        questions.find(qn => qn.id === q.id) || {};
 
-                  {/* ================= GRID + CARD ================= */}
-                  {[
-                    "radio_grid",
-                    "checkbox_grid",
-                    "card_radio",
-                    "card_checkbox",
-                  ].includes(t) && (
-                    <>
-                      <Textarea
-                        label="Columns"
-                        value={form.columnsText}
-                        onChange={(v) =>
-                          handleChange("columnsText", v)
-                        }
-                        placeholder={`1. Strongly Agree
-            2. Agree
-            3. Neutral`}
+                      const normalizePipe = (txt) =>
+                        (txt || "").replace(/\[pipe:\s*(.*?)\]/gi, (_, v) => {
+                          return `[pipe: ${v.trim()}]`;
+                        });
+
+                      return {
+                        ...q,
+
+                        // label fallback
+                        label: q.label || q.id,
+
+                        title: normalizePipe(q.title),
+                        description: normalizePipe(q.description),
+                        insert: original.insert || q.insert || null,
+
+                        /* ================= OPTIONS ================= */
+                        options:
+                          ["radio","checkbox","ranking"].includes(q.type)
+                            ? processOptions(
+                                original.parsedOptions?.length > 0
+                                  ? original.parsedOptions
+                                  : q.options,
+                                original.config || {}
+                              )
+                            : q.options,
+
+                        /* ================= ROWS ================= */
+                        rows:
+                          q.type === "autosum"
+                            ? (original.parsedRows?.length > 0
+                                ? original.parsedRows
+                                : [])
+                            : q.type === "ranking"
+                              ? (original.parsedOptions?.length > 0
+                                  ? original.parsedOptions
+                                  : q.rows)
+                              : ["radio","checkbox"].includes(q.type)
+                                ? (original.parsedOptions?.length > 0
+                                    ? original.parsedOptions
+                                    : q.rows)
+                                : (original.parsedRows?.length > 0
+                                    ? original.parsedRows
+                                    : q.rows),
+
+                        /* ================= COLUMNS ================= */
+                        columns:
+                          original.parsedColumns?.length > 0
+                            ? original.parsedColumns
+                            : (q.columns || []),
+                      };
+                    });
+
+                    return (
+                      <SurveyPreview
+                        questions={enrichedQuestions}
+                        activeQuestionLabel={activePreviewLabel}
                       />
+                    );
 
-                      <Textarea
-                        label="Rows"
-                        value={form.rowsText}
-                        onChange={(v) =>
-                          handleChange("rowsText", v)
-                        }
-                        placeholder={`1. Brand Trust
-            2. Product Quality`}
-                      />
-                    </>
+                  })() : (
+                    <EmptyState text="Click Preview to render full survey" />
                   )}
 
-                  {/* ================= NUMBER SINGLE ================= */}
-                  {t === "number_single" && (
-                    <>
-                      <Input
-                        label="Value"
-                        value={form.optionsText}
-                        onChange={(v) =>
-                          handleChange("optionsText", v)
-                        }
-                        placeholder="Enter number"
-                      />
-
-                      <div style={styles.grid2}>
-                        <Input
-                          label="Min"
-                          value={form.rangeMin}
-                          onChange={(v) =>
-                            handleChange("rangeMin", v)
-                          }
-                        />
-
-                        <Input
-                          label="Max"
-                          value={form.rangeMax}
-                          onChange={(v) =>
-                            handleChange("rangeMax", v)
-                          }
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* ================= NUMBER MULTI ================= */}
-                  {["number_multi", "float_multi"].includes(t) && (
-                    <>
-                      <Textarea
-                        label="Rows"
-                        value={form.rowsText}
-                        onChange={(v) =>
-                          handleChange("rowsText", v)
-                        }
-                        placeholder={`1. Category A
-            2. Category B`}
-                      />
-
-                      <div style={styles.grid2}>
-                        <Input
-                          label="Min"
-                          value={form.rangeMin}
-                          onChange={(v) =>
-                            handleChange("rangeMin", v)
-                          }
-                        />
-
-                        <Input
-                          label="Max"
-                          value={form.rangeMax}
-                          onChange={(v) =>
-                            handleChange("rangeMax", v)
-                          }
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* ================= TEXT ================= */}
-                  {t === "text_single" && (
-                    <InfoBox text="User will enter a single-line response." />
-                  )}
-
-                  {t === "text_multi" && (
-                    <Textarea
-                      label="Fields"
-                      value={form.rowsText}
-                      onChange={(v) =>
-                        handleChange("rowsText", v)
-                      }
-                      placeholder={`1. Field 1
-            2. Field 2`}
-                    />
-                  )}
-
-                  {t === "textarea_single" && (
-                    <InfoBox text="User will enter a long-form response." />
-                  )}
-
-                  {t === "textarea_multi" && (
-                    <Textarea
-                      label="Fields"
-                      value={form.rowsText}
-                      onChange={(v) =>
-                        handleChange("rowsText", v)
-                      }
-                      placeholder={`1. Field 1
-            2. Field 2`}
-                    />
-                  )}
-
-                  {/* ================= RANKING ================= */}
-                  {t === "ranking" && (
-                    <Textarea
-                      label="Ranking Options"
-                      value={form.optionsText}
-                      onChange={(v) => handleChange("optionsText", v)}
-                      placeholder={`1. Feature 1
-            2. Feature 2
-            3. Feature 3`}
-                    />
-                  )}
-
-                  {/* ================= AUTOSUM ================= */}
-                  {t === "autosum" && (
-                    <div>
-                      <div style={styles.autoHeader}>
-                        <span>Autosum Rows</span>
-                        <button
-                          style={styles.addBtn}
-                          onClick={addAutosumRow}
-                        >
-                          + Add Row
-                        </button>
-                      </div>
-
-                      {form.autosumRows.map((row, i) => (
-                        <div key={i} style={styles.autoCard}>
-                          <div style={styles.autoIndex}>
-                            {i + 1}
-                          </div>
-
-                          <div style={{ flex: 1 }}>
-                            <Input
-                              value={row.title}
-                              onChange={(v) =>
-                                handleAutosumChange(i, "title", v)
-                              }
-                              placeholder="Row Title"
-                            />
-
-                            <Input
-                              value={row.desc}
-                              onChange={(v) =>
-                                handleAutosumChange(i, "desc", v)
-                              }
-                              placeholder="Description (optional)"
-                            />
-                          </div>
-
-                          <button
-                            style={styles.deleteBtn}
-                            onClick={() => removeAutosumRow(i)}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* =====================================================
-                  🔧 OPTION EDITOR (NOW INSIDE ANSWERS TAB)
+                  🧾 XML OUTPUT
                 ===================================================== */}
-                {(
-                  ["radio","checkbox","ranking"].includes(form.type)
-                    ? form.parsedOptions?.length > 0
-                    : form.parsedRows?.length > 0
-                ) && (
-                  <div style={styles.card}>
+                {xml && (
+                  <div style={styles.xmlCard}>
                     <SectionHeader
-                      title="Option Editor"
-                      subtitle="Fine-tune labels, values & logic"
+                      title="Generated XML"
+                      subtitle="Decipher-ready output"
                     />
 
-                    {(
-                      ["radio","checkbox","ranking"].includes(form.type)
-                        ? form.parsedOptions
-                        : form.parsedRows
-                    ).map((opt, i) => {
-
-                      const isOptionType =
-                        ["radio","checkbox","ranking"].includes(form.type);
-
-                      const optText = (opt.text || "").trim();
-                      const isLocked = [97, 98, 99].includes(opt.value);
-
-                      const updateField = (field, value) => {
-                        const updated = isOptionType
-                          ? [...form.parsedOptions]
-                          : [...form.parsedRows];
-
-                        updated[i] = enforceOptionRules({
-                          ...updated[i],
-                          [field]: field === "value" ? Number(value) : value
-                        });
-                        if (field === "value" || field === "text") {
-                          updated[i] = enforceOptionRules(updated[i]);
-                        }
-
-                        handleChange(
-                          isOptionType ? "parsedOptions" : "parsedRows",
-                          updated
-                        );
-                      };
-
-                      return (
-                        <div
-                          key={i}
-                          style={{
-                            ...styles.optionRow,
-                            background: isLocked ? "#fef3c7" : "#f9fafb"
-                          }}
-                        >
-
-                          {/* VALUE */}
-                          <input
-                            type="number"
-                            value={opt.value}
-                            onChange={(e) =>
-                              updateField("value", Number(e.target.value))
-                            }
-                            style={styles.smallInput}
-                          />
-
-                          {/* TEXT */}
-                          <div style={{ flex: 1 }}>
-                            <RichTextEditor
-                              label={`opt-${i}`}
-                              value={opt.text}
-                              onChange={(v) => updateField("text", v)}
-                            />
-                          </div>
-
-                          {/* FLAGS */}
-                          <div style={styles.optionRightInline}>
-
-                            <CheckInline
-                              label="Anchor"
-                              checked={opt.anchor || false}
-                              onChange={(v) => updateField("anchor", v)}
-                            />
-
-                            <CheckInline
-                              label="Exclusive"
-                              checked={opt.exclusive || false}
-                              onChange={(v) => updateField("exclusive", v)}
-                            />
-
-                            <CheckInline
-                              label="Other"
-                              checked={opt.other || false}
-                              onChange={(v) => updateField("other", v)}
-                            />
-
-                            <CheckInline
-                              label="Terminate"
-                              checked={opt.terminate || false}
-                              onChange={(v) => updateField("terminate", v)}
-                            />
-
-                          </div>
-
-                        </div>
-                      );
-                    })}
+                    <CopyBlock
+                      title="XML Output"
+                      code={xml}
+                    />
                   </div>
                 )}
-              </>
-            )}
-            {/* =====================================================
-              🧠 LOGIC TAB (CLEAN BASE FOR FUTURE)
-            ===================================================== */}
-            {activePanel === "logic" && (
-              <div style={styles.card}>
-                <SectionHeader
-                  title="Logic"
-                  subtitle="Display, skip & piping logic"
-                />
 
-                <div style={styles.info}>
-                  Logic builder coming soon.
-                  <br />
-                  This will support:
-                  <ul style={{ marginTop: 6 }}>
-                    <li>Show/Hide conditions</li>
-                    <li>Skip logic</li>
-                    <li>Answer piping</li>
-                  </ul>
-                </div>
               </div>
-            )}
 
-            {/* =====================================================
-              ⚙️ ADVANCED TAB
-            ===================================================== */}
-            {activePanel === "advanced" && (
-              <>
-                {/* =========================
-                    ⚙️ ADVANCED SETTINGS
-                ========================= */}
-                <div style={styles.card}>
-                  <SectionHeader
-                    title="Advanced Settings"
-                    subtitle="Control behavior & validation"
-                  />
+            </div> {/* END RIGHT PANEL */}
 
-                  {/* RANDOMIZE */}
-                  <div style={styles.settingGroup}>
-                    <label style={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={form.randomize.all}
-                        onChange={(e) =>
-                          handleChange("randomize", {
-                            rows: e.target.checked,
-                            columns: e.target.checked,
-                            all: e.target.checked,
-                          })
-                        }
-                      />
-                      Randomize All
-                    </label>
-
-                    <div style={styles.inlineChecks}>
-                      <Check
-                        label="Rows"
-                        checked={form.randomize.rows}
-                        onChange={(v) =>
-                          handleChange("randomize", {
-                            ...form.randomize,
-                            rows: v,
-                            all: false,
-                          })
-                        }
-                      />
-                      <Check
-                        label="Columns"
-                        checked={form.randomize.columns}
-                        onChange={(v) =>
-                          handleChange("randomize", {
-                            ...form.randomize,
-                            columns: v,
-                            all: false,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* EXCLUSIVE */}
-                  <Check
-                    label="Exclusive Option (None of the above)"
-                    checked={form.exclusive}
-                    onChange={(v) => handleChange("exclusive", v)}
-                  />
-                </div>
-
-                {/* =========================
-                    🧠 QUESTION CONFIG
-                ========================= */}
-                <div style={styles.card}>
-                  <SectionHeader
-                    title="Question Config"
-                    subtitle="Advanced validation, behavior & display controls"
-                  />
-
-                  {/* BASIC */}
-                  <SectionMini title="Basic" />
-
-                  <Check
-                    label="Optional Question"
-                    checked={form.config.optional}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, optional: v })
-                    }
-                  />
-
-                  {/* VALIDATION */}
-                  <SectionMini title="Validation" />
-
-                  <div style={styles.grid2}>
-                    <Input
-                      label="Minimum Required"
-                      value={form.config.atleast}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, atleast: v })
-                      }
-                    />
-
-                    <Input
-                      label="Maximum Allowed"
-                      value={form.config.atmost}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, atmost: v })
-                      }
-                    />
-                  </div>
-
-                  <div style={styles.grid2}>
-                    <Input
-                      label="Exact Selection"
-                      value={form.config.exact}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, exact: v })
-                      }
-                    />
-
-                    <Input
-                      label="Unique Constraint"
-                      value={form.config.unique}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, unique: v })
-                      }
-                    />
-                  </div>
-
-                  <Input
-                    label="Verify Rule"
-                    value={form.config.verify}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, verify: v })
-                    }
-                    placeholder="range(0,100)"
-                  />
-
-                  {/* AUTOSUM */}
-                  {t === "autosum" && (
-                    <>
-                      <SectionMini title="Autosum Advanced" />
-
-                      <div style={styles.grid2}>
-                        <Input
-                          label="Total Amount"
-                          value={form.config.amount}
-                          onChange={(v) =>
-                            handleChange("config", { ...form.config, amount: v })
-                          }
-                        />
-
-                        <Input
-                          label="Tolerance (±)"
-                          value={form.config.tolerance}
-                          onChange={(v) =>
-                            handleChange("config", { ...form.config, tolerance: v })
-                          }
-                        />
-                      </div>
-
-                      <Check
-                        label="Strict Total Enforcement"
-                        checked={form.config.enforceTotal}
-                        onChange={(v) =>
-                          handleChange("config", { ...form.config, enforceTotal: v })
-                        }
-                      />
-
-                      <Check
-                        label="Auto-fill Remaining"
-                        checked={form.config.autoFillRemainder}
-                        onChange={(v) =>
-                          handleChange("config", { ...form.config, autoFillRemainder: v })
-                        }
-                      />
-
-                      <Check
-                        label="Show Running Total"
-                        checked={form.config.showTotal}
-                        onChange={(v) =>
-                          handleChange("config", { ...form.config, showTotal: v })
-                        }
-                      />
-                    </>
-                  )}
-
-                  {/* DISPLAY */}
-                  <SectionMini title="Display" />
-
-                  <div style={styles.grid2}>
-                    <Input
-                      label="Row Legend"
-                      value={form.config.rowLegend}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, rowLegend: v })
-                      }
-                    />
-
-                    <Input
-                      label="Prefix (₹ / $)"
-                      value={form.config.preText}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, preText: v })
-                      }
-                    />
-                  </div>
-
-                  <div style={styles.grid2}>
-                    <Select
-                      label="Alignment"
-                      value={form.config.alignment}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, alignment: v })
-                      }
-                      options={[
-                        { label: "Right", value: "right" },
-                        { label: "Left", value: "left" },
-                        { label: "Inline", value: "inline" },
-                      ]}
-                    />
-
-                    <Select
-                      label="Input Size"
-                      value={form.config.inputSize}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, inputSize: v })
-                      }
-                      options={[
-                        { label: "Small", value: "small" },
-                        { label: "Medium", value: "medium" },
-                        { label: "Large", value: "large" },
-                      ]}
-                    />
-                  </div>
-
-                  <Input
-                    label="Placeholder"
-                    value={form.config.placeholder}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, placeholder: v })
-                    }
-                  />
-
-                  {/* BEHAVIOR */}
-                  <SectionMini title="Behavior" />
-
-                  <Check
-                    label="Auto Advance"
-                    checked={form.config.autoAdvance}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, autoAdvance: v })
-                    }
-                  />
-
-                  <Check
-                    label="Disable Instead of Hide"
-                    checked={form.config.disableInsteadOfHide}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, disableInsteadOfHide: v })
-                    }
-                  />
-
-                  {/* RANDOMIZATION */}
-                  <SectionMini title="Randomization Advanced" />
-
-                  <Input
-                    label="Random Subset (N)"
-                    value={form.config.randomizeSubset}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, randomizeSubset: v })
-                    }
-                  />
-
-                  <Check
-                    label="Keep First Fixed"
-                    checked={form.config.keepFirstFixed}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, keepFirstFixed: v })
-                    }
-                  />
-
-                  <Check
-                    label="Keep Last Fixed"
-                    checked={form.config.keepLastFixed}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, keepLastFixed: v })
-                    }
-                  />
-
-                  {/* SPECIAL OPTIONS */}
-                  <SectionMini title="Special Options" />
-
-                  <Check
-                    label="Include Other"
-                    checked={form.config.includeOther}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, includeOther: v })
-                    }
-                  />
-
-                  <Check
-                    label="Include None of the Above"
-                    checked={form.config.includeNone}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, includeNone: v })
-                    }
-                  />
-
-                  <Check
-                    label="Include Don't Know"
-                    checked={form.config.includeDK}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, includeDK: v })
-                    }
-                  />
-
-                  <Check
-                    label="Include Prefer Not to Answer"
-                    checked={form.config.includePNA}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, includePNA: v })
-                    }
-                  />
-
-                  {/* DATA OUTPUT */}
-                  <SectionMini title="Data Output" />
-
-                  <div style={styles.grid2}>
-                    <Input
-                      label="Variable Name"
-                      value={form.config.variableName}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, variableName: v })
-                      }
-                    />
-
-                    <Input
-                      label="Export Label"
-                      value={form.config.exportLabel}
-                      onChange={(v) =>
-                        handleChange("config", { ...form.config, exportLabel: v })
-                      }
-                    />
-                  </div>
-
-                  <Input
-                    label="Custom Error Message"
-                    value={form.config.errorMessage}
-                    onChange={(v) =>
-                      handleChange("config", { ...form.config, errorMessage: v })
-                    }
-                  />
-                </div>
-
-                {/* =========================
-                    📊 COLUMN EDITOR
-                ========================= */}
-                {form.parsedColumns?.length > 0 && (
-                  <div style={styles.card}>
-                    <SectionHeader
-                      title="Column Editor"
-                      subtitle="Adjust grid column behavior"
-                    />
-
-                    {form.parsedColumns.map((col, i) => (
-                      <div key={i} style={styles.optionRow}>
-                        <div style={styles.optionIndex}>
-                          {col.label}
-                        </div>
-
-                        <RichTextEditor
-                          label={`col-${i}`}
-                          value={col.text}
-                          onChange={(v) => {
-                            const updated = [...form.parsedColumns];
-                            updated[i].text = v;
-                            handleChange("parsedColumns", updated);
-                          }}
-                        />
-
-                        <CheckInline
-                          label="Exclusive"
-                          checked={col.exclusive || false}
-                          onChange={(v) => {
-                            const updated = [...form.parsedColumns];
-                            updated[i].exclusive = [97, 99].includes(col.value) ? v : false;
-                            handleChange("parsedColumns", updated);
-                          }}
-                        />
-
-                        <CheckInline
-                          label="Anchor"
-                          checked={col.anchor || false}
-                          onChange={(v) => {
-                            const updated = [...form.parsedColumns];
-                            updated[i].anchor = v;
-                            handleChange("parsedColumns", updated);
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>  
-          {/* =========================
-              👉 RIGHT PANEL
-          ========================= */}
-          <div style={styles.rightPanel}>
-
-            {/* =========================
-                🎯 ACTION BAR (STICKY)
-            ========================= */}
-            <div style={styles.actionBar}>
-              <button
-                onClick={handlePreview}
-                style={styles.previewBtn}
-              >
-                🔍 Preview All
-              </button>
-
-              <GenerateButton
-                onClick={handleGenerate}
-                loading={loading}
-                disabled={!parsed.length}
-              />
-            </div>
-
-            {/* =========================
-                👁️ LIVE PREVIEW (MULTI)
-            ========================= */}
-            <div style={styles.previewCard}>
-              <SectionHeader
-                title="Live Preview"
-                subtitle="Full survey rendering"
-              />
-
-              {parsed.length > 0 ? (() => {
-
-                const enrichedQuestions = parsed.map((q) => {
-                  const original = questions.find(qn => qn.id === q.id) || {};
-
-                  const normalizePipe = (txt) =>
-                    (txt || "").replace(/\[pipe:\s*(.*?)\]/gi, (_, v) => {
-                      return `[pipe: ${v.trim()}]`;
-                    });
-
-                  return {
-                    ...q,
-
-                    // ✅ CRITICAL FIX
-                    label: q.label || q.id,
-
-                    title: normalizePipe(q.title),
-                    description: normalizePipe(q.description),
-                    insert: original.insert || q.insert || null,
-
-                    /* ================= OPTIONS ================= */
-                    options:
-                      ["radio","checkbox","ranking"].includes(q.type)
-                        ? processOptions(
-                            original.parsedOptions?.length > 0
-                              ? original.parsedOptions
-                              : q.options,
-                            original.config || {}
-                          )
-                        : q.options,
-
-                    /* ================= ROWS ================= */
-                    rows:
-                      q.type === "autosum"
-                        ? (original.parsedRows?.length > 0 ? original.parsedRows : [])
-                        : q.type === "ranking"
-                          ? (original.parsedOptions?.length > 0 ? original.parsedOptions : q.rows)
-                          : ["radio","checkbox"].includes(q.type)
-                            ? (original.parsedOptions?.length > 0 ? original.parsedOptions : q.rows)
-                            : (original.parsedRows?.length > 0 ? original.parsedRows : q.rows),
-
-                    /* ================= COLUMNS ================= */
-                    columns:
-                      original.parsedColumns?.length > 0
-                        ? original.parsedColumns
-                        : (q.columns || []),
-                  };
-                });
-
-                return (
-                  <SurveyPreview
-                    questions={enrichedQuestions}
-                    activeQuestionLabel={activePreviewLabel}
-                  />
-                );
-
-              })() : (
-                <EmptyState text="Click Preview to render full survey" />
-              )}
-            </div>
-
-            {/* =========================
-                🧾 XML OUTPUT (🔥 NEW FIX)
-            ========================= */}
-            {xml && (
-              <div style={styles.xmlCard}>
-                <SectionHeader
-                  title="Generated XML"
-                  subtitle="Decipher-ready output"
-                />
-
-                <CopyBlock
-                  title="XML Output"
-                  code={xml}
-                />
-              </div>
-            )}
-            </div> {/* container */}
-          </div>
-        </div>
+          </div> {/* END LAYOUT */}
+        </div>   {/* END APP SHELL */}
       </div>
-    )}  
-  </>
-);
-}
-
-/**
- * ============================================
- * 🧩 REUSABLE COMPONENTS
- * ============================================
- */
-
-function SectionHeader({ title, subtitle }) {
-  return (
-    <div style={styles.sectionHeader}>
-      <div>
-        <h3 style={styles.sectionTitle}>{title}</h3>
-        <p style={styles.sectionSub}>{subtitle}</p>
-      </div>
-    </div>
+      )}
+      
+    </>
   );
 }
 
@@ -2738,202 +2867,418 @@ function AutosumQuestion({ question }) {
 
 export const styles = {
 
-  /* ================= DESIGN TOKENS (PREMIUM) ================= */
+  /* =====================================================
+     🎨 C5i PREMIUM THEME TOKENS (PURPLE SYSTEM)
+  ===================================================== */
 
-  colorBg: "#f8fafc",
-  colorPanel: "rgba(255,255,255,0.75)",
-  colorBorder: "rgba(226,232,240,0.6)",
-  colorText: "#0f172a",
-  colorSub: "#64748b",
+  /* -------- CORE COLORS -------- */
+  colorBg: "#0b0620",
+  colorBgSoft: "#120a2e",
+  colorPanel: "rgba(20,10,50,0.75)",
+  colorPanelSolid: "#140a32",
 
-  primary: "#4f46e5",
-  primarySoft: "#eef2ff",
-  primaryGlow: "rgba(79,70,229,0.35)",
+  colorBorder: "rgba(139,92,246,0.18)",
+  colorBorderStrong: "rgba(139,92,246,0.35)",
 
-  success: "#16a34a",
-  danger: "#dc2626",
+  colorText: "#f1f5f9",
+  colorSub: "#a1a1aa",
 
+  /* -------- PURPLE SYSTEM -------- */
+  primary: "#8b5cf6",
+  primaryDeep: "#6d28d9",
+  primaryGlow: "rgba(139,92,246,0.45)",
+  primarySoft: "rgba(139,92,246,0.12)",
+
+  accent: "#a78bfa",
+  accentSoft: "rgba(167,139,250,0.15)",
+
+  /* -------- STATES -------- */
+  success: "#22c55e",
+  danger: "#ef4444",
+  warning: "#f59e0b",
+
+  /* -------- GLASS -------- */
+  glass: "blur(18px)",
+  glassStrong: "blur(28px)",
+
+  /* -------- RADIUS -------- */
   radiusXs: "6px",
   radiusSm: "10px",
-  radiusMd: "14px",
-  radiusLg: "18px",
+  radiusMd: "16px",
+  radiusLg: "22px",
+  radiusXl: "28px",
 
-  shadowXs: "0 1px 3px rgba(0,0,0,0.04)",
-  shadowSm: "0 4px 12px rgba(0,0,0,0.05)",
-  shadowMd: "0 12px 30px rgba(0,0,0,0.08)",
-  shadowLg: "0 20px 50px rgba(0,0,0,0.12)",
+  /* -------- SHADOWS (GLOW BASED) -------- */
+  shadowGlowSm: "0 0 12px rgba(139,92,246,0.25)",
+  shadowGlowMd: "0 0 24px rgba(139,92,246,0.35)",
+  shadowGlowLg: "0 0 60px rgba(139,92,246,0.45)",
 
-  glass: "blur(14px)",
+  shadowSoft: "0 10px 30px rgba(0,0,0,0.4)",
+  shadowDeep: "0 20px 60px rgba(0,0,0,0.6)",
 
-  /* ================= PAGE ================= */
+  /* =====================================================
+     🌌 PAGE (C5i BACKGROUND)
+  ===================================================== */
 
-  page: {
+  appShell: {
     width: "100vw",
     height: "100vh",
+
+    display: "flex",
+    flexDirection: "column",
+
     overflow: "hidden",
 
     fontFamily: "Inter, system-ui, sans-serif",
 
     background: `
-      radial-gradient(circle at 20% 20%, #e0e7ff 0%, transparent 40%),
-      radial-gradient(circle at 80% 0%, #dbeafe 0%, transparent 40%),
-      linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)
+      radial-gradient(circle at 10% 20%, rgba(139,92,246,0.25), transparent 40%),
+      radial-gradient(circle at 90% 0%, rgba(124,58,237,0.2), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(99,102,241,0.15), transparent 40%),
+      linear-gradient(180deg, #05010f 0%, #0b0620 100%)
     `,
 
-    color: "#0f172a",
+    color: "#f1f5f9",
   },
 
-  /* ================= HEADER ================= */
+  /* =====================================================
+     🔝 TOP BAR (PREMIUM GLASS)
+  ===================================================== */
 
-  header: {
+  topBar: {
     height: "64px",
+
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
 
     padding: "0 24px",
 
-    background: "rgba(255,255,255,0.7)",
-    backdropFilter: "blur(14px)",
+    background: "rgba(10,5,30,0.6)",
+    backdropFilter: "blur(20px)",
 
-    borderBottom: "1px solid rgba(255,255,255,0.6)",
+    borderBottom: "1px solid rgba(139,92,246,0.2)",
 
-    position: "sticky",
-    top: 0,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+
     zIndex: 100,
   },
 
-  logo: {
+  topLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+
+  appTitle: {
     margin: 0,
     fontSize: "18px",
     fontWeight: "700",
     letterSpacing: "-0.3px",
-    color: "#1e293b",
+
+    background: "linear-gradient(90deg,#c4b5fd,#8b5cf6)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
   },
 
-  subtitle: {
+  topRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+  },
+
+  userText: {
     fontSize: "12px",
-    color: "#64748b",
+    color: "#a1a1aa",
   },
 
-  /* ================= MAIN LAYOUT ================= */
+  logoutBtn: {
+    padding: "8px 12px",
 
-  main: {
-    display: "grid",
-    gridTemplateColumns: "380px 1fr",
-    height: "calc(100vh - 64px)",
+    borderRadius: "10px",
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    background: "rgba(139,92,246,0.08)",
+    color: "#e5e7eb",
+
+    cursor: "pointer",
+
+    transition: "all 0.2s ease",
   },
 
-  /* ================= LEFT PANEL ================= */
+  /* =====================================================
+     🧱 MAIN LAYOUT
+  ===================================================== */
 
-  leftPanel: {
+  layout: {
+    display: "flex",
+    flex: 1,
+    overflow: "hidden",
+  },
+
+  /* =====================================================
+     📌 SIDEBAR (C5i STYLE)
+  ===================================================== */
+
+  sidebar: {
+    width: "220px",
+
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+
+    padding: "16px",
+
+    background: "rgba(15,5,40,0.85)",
+    backdropFilter: "blur(20px)",
+
+    borderRight: "1px solid rgba(139,92,246,0.2)",
+
+    boxShadow: "inset -1px 0 0 rgba(139,92,246,0.1)",
+  },
+
+  sidebarHeader: {
+    fontSize: "11px",
+    fontWeight: "600",
+
+    color: "#a78bfa",
+
+    marginBottom: "10px",
+    paddingLeft: "6px",
+
+    textTransform: "uppercase",
+    letterSpacing: "0.6px",
+  },
+
+  sidebarItem: {
+    padding: "10px 12px",
+
+    borderRadius: "12px",
+
+    fontSize: "12px",
+    fontWeight: "500",
+
+    color: "#cbd5f5",
+
+    cursor: "pointer",
+
+    transition: "all 0.18s ease",
+
+    display: "flex",
+    alignItems: "center",
+  },
+
+  sidebarItemActive: {
+    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
+
+    color: "#fff",
+
+    boxShadow: "0 8px 24px rgba(139,92,246,0.4)",
+  },
+
+  /* =====================================================
+     🧩 CONTENT AREA
+  ===================================================== */
+
+  contentArea: {
+    flex: 1,
+
+    display: "flex",
+    flexDirection: "column",
+
+    overflow: "hidden",
+
+    background: "rgba(10,5,25,0.6)",
+  },
+
+  panelContent: {
+    flex: 1,
+
+    overflowY: "auto",
+
+    padding: "18px",
+
     display: "flex",
     flexDirection: "column",
     gap: "16px",
-    padding: "18px",
-
-    overflowY: "auto",
-    minWidth: 0,
-
-    background: "#f8fafc",
-
-    borderRight: "1px solid #e2e8f0",
   },
 
-  /* ================= RIGHT PANEL ================= */
+  /* =====================================================
+     🧭 QUESTION BAR (NEON STRIP)
+  ===================================================== */
 
-  rightPanel: {
+  questionBar: {
     display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-    padding: "28px",
-    overflow: "auto",
+    alignItems: "center",
+    justifyContent: "space-between",
 
-    background: "linear-gradient(180deg,#f8fafc,#eef2ff)",
+    padding: "12px 16px",
+
+    borderBottom: "1px solid rgba(139,92,246,0.2)",
+
+    background: "rgba(10,5,30,0.6)",
+    backdropFilter: "blur(18px)",
   },
 
-  /* ================= CARD SYSTEM ================= */
+  questionTabs: {
+    display: "flex",
+    gap: "8px",
+    overflowX: "auto",
+  },
+
+  qTab: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+
+    padding: "8px 12px",
+
+    borderRadius: "10px",
+
+    fontSize: "12px",
+
+    background: "rgba(139,92,246,0.08)",
+    border: "1px solid rgba(139,92,246,0.15)",
+
+    color: "#cbd5f5",
+
+    cursor: "pointer",
+
+    transition: "all 0.2s ease",
+  },
+
+  qTabActive: {
+    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
+    color: "#fff",
+
+    boxShadow: "0 8px 20px rgba(139,92,246,0.45)",
+  },
+
+  qTabActions: {
+    display: "flex",
+    gap: "6px",
+  },
+
+  addQBtn: {
+    padding: "10px 14px",
+
+    borderRadius: "12px",
+    border: "none",
+
+    background: "linear-gradient(135deg,#22c55e,#4ade80)",
+    color: "#02130a",
+
+    fontWeight: "600",
+
+    cursor: "pointer",
+
+    boxShadow: "0 8px 20px rgba(34,197,94,0.4)",
+  },
+
+  /* =====================================================
+     🧊 CARD SYSTEM (GLASS + GLOW)
+  ===================================================== */
 
   card: {
-    background: "rgba(255,255,255,0.75)",
-    backdropFilter: "blur(12px)",
+    background: "rgba(20,10,50,0.65)",
+    backdropFilter: "blur(18px)",
 
-    borderRadius: "14px",
-    padding: "16px",
+    borderRadius: "18px",
+    padding: "18px",
 
-    border: "1px solid rgba(255,255,255,0.6)",
+    border: "1px solid rgba(139,92,246,0.18)",
 
-    boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
 
-    width: "100%",          // ✅ ADD
-    minWidth: 0,            // ✅ ADD
+    position: "relative",
+    overflow: "hidden",
   },
 
-  cardHover: {
-    transform: "translateY(-2px)",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  cardGlow: {
+    position: "absolute",
+    inset: 0,
+
+    background: "radial-gradient(circle at 0% 0%, rgba(139,92,246,0.25), transparent 50%)",
+
+    pointerEvents: "none",
   },
 
   cardPrimary: {
-    background: "linear-gradient(135deg,#ffffff,#f8fafc)",
+    background: "linear-gradient(135deg, rgba(30,10,70,0.9), rgba(20,10,50,0.9))",
 
-    borderRadius: "16px",
-    padding: "18px",
+    borderRadius: "20px",
+    padding: "20px",
 
-    border: "1px solid rgba(99,102,241,0.2)",
+    border: "1px solid rgba(139,92,246,0.25)",
 
-    boxShadow: "0 12px 30px rgba(79,70,229,0.12)",
+    boxShadow: "0 15px 50px rgba(139,92,246,0.25)",
   },
 
   previewCard: {
-    background: "rgba(255,255,255,0.95)",
-    backdropFilter: "blur(16px)",
+    background: "rgba(10,5,30,0.9)",
+    backdropFilter: "blur(24px)",
 
-    borderRadius: "20px",
-    padding: "36px",
+    borderRadius: "24px",
+    padding: "28px",
 
-    border: "1px solid rgba(255,255,255,0.7)",
+    border: "1px solid rgba(139,92,246,0.25)",
 
-    width: "100%",
-    maxWidth: "1100px",
+    maxWidth: "780px",
     margin: "0 auto",
 
-    boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+    boxShadow: "0 30px 80px rgba(0,0,0,0.7)",
   },
 
   xmlCard: {
-    background: "rgba(255,255,255,0.75)",
-    backdropFilter: "blur(12px)",
+    background: "rgba(10,5,25,0.9)",
 
-    borderRadius: "14px",
+    borderRadius: "16px",
     padding: "16px",
 
-    border: "1px solid rgba(255,255,255,0.6)",
+    border: "1px solid rgba(139,92,246,0.2)",
   },
 
-  /* ================= TYPOGRAPHY ================= */
+  /* =====================================================
+     🧾 TYPOGRAPHY (PREMIUM CONTRAST)
+  ===================================================== */
+
+  sectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+
+    marginBottom: "12px",
+  },
 
   sectionTitle: {
     margin: 0,
-    fontSize: "15px",
+    fontSize: "14px",
     fontWeight: "600",
+
+    color: "#e5e7eb",
+
     letterSpacing: "-0.2px",
   },
 
   sectionSub: {
     margin: 0,
-    fontSize: "12px",
-    color: "#64748b",
+    fontSize: "11px",
+
+    color: "#9ca3af",
   },
 
   sectionMini: {
-    fontSize: "12px",
+    fontSize: "11px",
     fontWeight: "600",
-    marginTop: "12px",
-    color: "#334155",
+
+    marginTop: "14px",
+
+    color: "#a78bfa",
   },
 
-  /* ================= GRID ================= */
+  /* =====================================================
+     🔲 GRID SYSTEM
+  ===================================================== */
 
   grid2: {
     display: "grid",
@@ -2947,41 +3292,9 @@ export const styles = {
     gap: "12px",
   },
 
-  /* ================= SPACING HELPERS ================= */
-
-  stackSm: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-  },
-
-  stackMd: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-
-  stackLg: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
-
-  /* ================= DIVIDERS ================= */
-
-  divider: {
-    height: "1px",
-    background: "linear-gradient(90deg, transparent, #e2e8f0, transparent)",
-    margin: "8px 0",
-  },
-
-  /* ================= SCROLLBAR (SUBTLE PREMIUM) ================= */
-
-  scroll: {
-    scrollbarWidth: "thin",
-  },
-
-  /* ================= INPUT SYSTEM (PREMIUM FEEL) ================= */
+  /* =====================================================
+     ✍️ INPUT SYSTEM (DARK GLASS)
+  ===================================================== */
 
   inputWrap: {
     display: "flex",
@@ -2991,20 +3304,21 @@ export const styles = {
 
   label: {
     fontSize: "11px",
-    color: "#475569",
+    color: "#a1a1aa",
     fontWeight: "500",
-    letterSpacing: "0.2px",
   },
 
   input: {
     padding: "10px 12px",
-    borderRadius: "10px",
 
-    border: "1px solid rgba(226,232,240,0.9)",
-    background: "rgba(255,255,255,0.9)",
+    borderRadius: "12px",
+
+    border: "1px solid rgba(139,92,246,0.2)",
+
+    background: "rgba(10,5,30,0.9)",
+    color: "#f1f5f9",
 
     fontSize: "12px",
-    color: "#0f172a",
 
     outline: "none",
 
@@ -3012,29 +3326,34 @@ export const styles = {
   },
 
   inputFocus: {
-    borderColor: "#6366f1",
-    boxShadow: "0 0 0 3px rgba(99,102,241,0.15)",
+    borderColor: "#8b5cf6",
+
+    boxShadow: "0 0 0 3px rgba(139,92,246,0.25)",
   },
 
   inputError: {
     borderColor: "#ef4444",
-    boxShadow: "0 0 0 3px rgba(239,68,68,0.15)",
+
+    boxShadow: "0 0 0 3px rgba(239,68,68,0.25)",
   },
 
   textarea: {
     width: "100%",
     padding: "12px",
 
-    borderRadius: "12px",
-    border: "1px solid rgba(226,232,240,0.9)",
+    borderRadius: "14px",
 
-    background: "rgba(255,255,255,0.95)",
+    border: "1px solid rgba(139,92,246,0.2)",
 
-    minHeight: "140px",
-    resize: "vertical",
+    background: "rgba(10,5,30,0.95)",
+    color: "#f1f5f9",
+
+    minHeight: "160px",
 
     fontSize: "12px",
     lineHeight: "1.5",
+
+    resize: "vertical",
 
     outline: "none",
 
@@ -3043,24 +3362,29 @@ export const styles = {
 
   select: {
     padding: "10px 12px",
-    borderRadius: "10px",
 
-    border: "1px solid rgba(226,232,240,0.9)",
-    background: "rgba(255,255,255,0.95)",
+    borderRadius: "12px",
+
+    border: "1px solid rgba(139,92,246,0.2)",
+
+    background: "rgba(10,5,30,0.95)",
+    color: "#e5e7eb",
 
     fontSize: "12px",
 
     outline: "none",
-    cursor: "pointer",
 
-    transition: "all 0.18s ease",
+    cursor: "pointer",
   },
 
-  /* ================= BUTTON SYSTEM ================= */
+  /* =====================================================
+     🎛 BUTTON SYSTEM (NEON / GRADIENT)
+  ===================================================== */
 
   btnBase: {
     padding: "10px 14px",
-    borderRadius: "10px",
+
+    borderRadius: "12px",
     border: "none",
 
     fontSize: "12px",
@@ -3068,290 +3392,128 @@ export const styles = {
 
     cursor: "pointer",
 
-    transition: "all 0.18s ease",
+    transition: "all 0.2s ease",
   },
 
   btnPrimary: {
-    background: "linear-gradient(135deg,#4f46e5,#6366f1)",
+    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
+
     color: "#fff",
 
-    boxShadow: "0 8px 20px rgba(79,70,229,0.35)",
+    boxShadow: "0 10px 30px rgba(139,92,246,0.5)",
   },
 
   btnPrimaryHover: {
     transform: "translateY(-1px)",
-    boxShadow: "0 12px 26px rgba(79,70,229,0.45)",
+    boxShadow: "0 14px 40px rgba(139,92,246,0.6)",
   },
 
   btnSuccess: {
     background: "linear-gradient(135deg,#16a34a,#22c55e)",
-    color: "#fff",
 
-    boxShadow: "0 8px 20px rgba(34,197,94,0.35)",
-  },
+    color: "#02130a",
 
-  btnGhost: {
-    background: "rgba(255,255,255,0.7)",
-    border: "1px solid rgba(226,232,240,0.8)",
-
-    color: "#334155",
+    boxShadow: "0 10px 25px rgba(34,197,94,0.4)",
   },
 
   btnDanger: {
-    background: "#ef4444",
+    background: "linear-gradient(135deg,#ef4444,#dc2626)",
+
     color: "#fff",
 
-    boxShadow: "0 6px 14px rgba(239,68,68,0.3)",
+    boxShadow: "0 8px 20px rgba(239,68,68,0.4)",
   },
 
-  /* ================= MAIN ACTION BUTTONS ================= */
+  btnGhost: {
+    background: "rgba(139,92,246,0.08)",
+
+    border: "1px solid rgba(139,92,246,0.2)",
+
+    color: "#c4b5fd",
+  },
+
+  /* =====================================================
+     🚀 MAIN ACTION BUTTONS
+  ===================================================== */
 
   previewBtn: {
     flex: 1,
+
     padding: "12px",
-    borderRadius: "12px",
+
+    borderRadius: "14px",
     border: "none",
 
-    background: "linear-gradient(135deg,#4f46e5,#6366f1)",
+    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
     color: "#fff",
 
     fontWeight: "600",
 
-    boxShadow: "0 10px 25px rgba(79,70,229,0.4)",
+    boxShadow: "0 12px 35px rgba(139,92,246,0.5)",
 
     cursor: "pointer",
-    transition: "all 0.2s ease",
   },
 
   generateBtn: {
     flex: 1,
+
     padding: "12px",
-    borderRadius: "12px",
+
+    borderRadius: "14px",
     border: "none",
 
     background: "linear-gradient(135deg,#16a34a,#22c55e)",
-    color: "#fff",
+    color: "#02130a",
 
     fontWeight: "600",
 
-    boxShadow: "0 10px 25px rgba(34,197,94,0.4)",
+    boxShadow: "0 12px 35px rgba(34,197,94,0.5)",
 
     cursor: "pointer",
-    transition: "all 0.2s ease",
   },
 
-  /* ================= ACTION BAR (FLOATING GLASS) ================= */
+  /* =====================================================
+     🎯 ACTION BAR (FLOATING GLASS)
+  ===================================================== */
 
   actionBar: {
     position: "sticky",
-    top: "14px",
-    zIndex: 50,
+    top: "12px",
 
     display: "flex",
     gap: "12px",
 
-    padding: "16px",
+    padding: "14px",
 
-    background: "rgba(255,255,255,0.9)",
-    backdropFilter: "blur(16px)",
+    borderRadius: "18px",
 
-    borderRadius: "16px",
+    background: "rgba(15,5,40,0.75)",
+    backdropFilter: "blur(20px)",
 
-    boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
+
+    zIndex: 40,
   },
 
-  /* ================= TAB SYSTEM (LINEAR STYLE) ================= */
-
-  tabBar: {
-    display: "flex",
-    gap: "6px",
-    padding: "6px",
-
-    borderRadius: "14px",
-
-    background: "rgba(226,232,240,0.7)",
-
-    backdropFilter: "blur(8px)",
-
-    position: "sticky",
-    top: "0",
-    zIndex: 20,
-  },
-
-  tabBtn: {
-    flex: 1,
-
-    padding: "8px 10px",
-
-    borderRadius: "10px",
-    border: "none",
-
-    background: "transparent",
-
-    fontSize: "12px",
-    fontWeight: "500",
-
-    color: "#475569",
-
-    cursor: "pointer",
-
-    transition: "all 0.18s ease",
-  },
-
-  tabBtnActive: {
-    background: "#ffffff",
-
-    color: "#1e293b",
-
-    fontWeight: "600",
-
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-  },
-
-  /* ================= QUESTION TABS ================= */
-
-  qTabs: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-    gap: "10px",
-  },
-
-  qTab: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-
-    padding: "10px 12px",
-
-    borderRadius: "12px",
-
-    border: "1px solid rgba(226,232,240,0.8)",
-    background: "rgba(255,255,255,0.85)",
-
-    cursor: "pointer",
-
-    fontSize: "12px",
-
-    transition: "all 0.2s ease",
-
-    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-  },
-
-  qTabActive: {
-    background: "#eef2ff",
-
-    borderColor: "#6366f1",
-
-    boxShadow: "0 6px 16px rgba(99,102,241,0.25)",
-
-    color: "#3730a3",
-  },
-
-  qTabActions: {
-    display: "flex",
-    gap: "6px",
-    opacity: 0.7,
-  },
-
-  qTabIconBtn: {
-    width: "24px",
-    height: "24px",
-
-    borderRadius: "6px",
-
-    border: "1px solid rgba(226,232,240,0.8)",
-    background: "#ffffff",
-
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-
-    cursor: "pointer",
-
-    fontSize: "11px",
-
-    transition: "all 0.15s ease",
-  },
-
-  addQBtn: {
-    width: "100%",
-
-    padding: "12px",
-
-    marginBottom: "12px",
-
-    borderRadius: "12px",
-    border: "none",
-
-    background: "linear-gradient(135deg,#16a34a,#22c55e)",
-    color: "#fff",
-
-    fontWeight: "600",
-
-    cursor: "pointer",
-
-    boxShadow: "0 8px 20px rgba(34,197,94,0.3)",
-  },
-
-  /* ================= CHECKBOX / SWITCH ================= */
-
-  checkbox: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-
-    fontSize: "12px",
-    color: "#334155",
-
-    cursor: "pointer",
-  },
-
-  checkInline: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-
-    fontSize: "11px",
-
-    background: "rgba(248,250,252,0.7)",
-    padding: "4px 6px",
-
-    borderRadius: "6px",
-  },
-
-  /* ================= MINI BUTTONS ================= */
-
-  smallBtn: {
-    padding: "6px 8px",
-
-    fontSize: "11px",
-
-    borderRadius: "8px",
-
-    border: "1px solid rgba(226,232,240,0.8)",
-
-    background: "#fff",
-
-    cursor: "pointer",
-
-    transition: "all 0.15s ease",
-  },  
-
-  /* ================= OPTION EDITOR (PREMIUM CORE UX) ================= */
+  /* =====================================================
+     🧠 OPTION EDITOR (CORE UX — HIGH IMPACT)
+  ===================================================== */
 
   optionHeader: {
     display: "grid",
-    gridTemplateColumns: "60px 1fr 220px",
+    gridTemplateColumns: "60px 1fr 240px",
     gap: "12px",
 
-    padding: "12px 14px",
+    padding: "10px 12px",
 
     fontSize: "11px",
     fontWeight: "600",
 
-    color: "#64748b",
+    color: "#a1a1aa",
 
-    borderBottom: "1px solid rgba(226,232,240,0.6)",
+    borderBottom: "1px solid rgba(139,92,246,0.15)",
   },
 
   optionRow: {
@@ -3360,19 +3522,23 @@ export const styles = {
 
     padding: "14px",
 
-    borderRadius: "14px",
+    borderRadius: "16px",
 
-    background: "rgba(255,255,255,0.85)",
-    border: "1px solid rgba(226,232,240,0.6)",
+    background: "rgba(20,10,50,0.7)",
 
-    boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
+    border: "1px solid rgba(139,92,246,0.2)",
+
+    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
 
     transition: "all 0.2s ease",
+
+    position: "relative",
   },
 
   optionRowHover: {
     transform: "translateY(-2px)",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
+    boxShadow: "0 16px 40px rgba(139,92,246,0.35)",
+    borderColor: "rgba(139,92,246,0.45)",
   },
 
   optionIndex: {
@@ -3381,7 +3547,7 @@ export const styles = {
     fontWeight: "600",
     fontSize: "12px",
 
-    color: "#475569",
+    color: "#c4b5fd",
 
     display: "flex",
     alignItems: "center",
@@ -3398,30 +3564,39 @@ export const styles = {
 
   optionTextarea: {
     width: "100%",
-    maxWidth: "100%",       // ✅ PREVENT OVERFLOW
-
-    minHeight: "160px",
+    minHeight: "140px",
 
     padding: "12px",
 
-    borderRadius: "10px",
-    border: "1px dashed #c7d2fe",
+    borderRadius: "12px",
+
+    border: "1px dashed rgba(139,92,246,0.4)",
+
+    background: "rgba(10,5,30,0.9)",
+    color: "#f1f5f9",
 
     fontSize: "12px",
 
     resize: "vertical",
 
-    boxSizing: "border-box",  // ✅ CRITICAL
+    outline: "none",
+
+    transition: "all 0.2s ease",
+  },
+
+  optionTextareaFocus: {
+    borderColor: "#8b5cf6",
+    boxShadow: "0 0 0 3px rgba(139,92,246,0.25)",
   },
 
   optionRight: {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "8px",
 
     alignItems: "flex-end",
 
-    minWidth: "160px",
+    minWidth: "180px",
   },
 
   optionRightInline: {
@@ -3437,28 +3612,33 @@ export const styles = {
 
     padding: "8px",
 
-    borderRadius: "8px",
+    borderRadius: "10px",
 
-    border: "1px solid rgba(226,232,240,0.8)",
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    background: "rgba(10,5,30,0.9)",
+    color: "#e5e7eb",
 
     fontSize: "12px",
+
+    textAlign: "center",
   },
 
   deleteBtn: {
-    background: "#ef4444",
+    background: "linear-gradient(135deg,#ef4444,#dc2626)",
     color: "#fff",
 
     border: "none",
 
     padding: "6px 10px",
 
-    fontSize: "12px",
+    fontSize: "11px",
 
     borderRadius: "8px",
 
     cursor: "pointer",
 
-    boxShadow: "0 6px 14px rgba(239,68,68,0.25)",
+    boxShadow: "0 6px 14px rgba(239,68,68,0.4)",
   },
 
   addBtn: {
@@ -3468,24 +3648,161 @@ export const styles = {
 
     borderRadius: "10px",
 
-    background: "linear-gradient(135deg,#16a34a,#22c55e)",
-    color: "#fff",
+    background: "linear-gradient(135deg,#22c55e,#4ade80)",
+    color: "#02130a",
 
     border: "none",
 
     cursor: "pointer",
 
-    boxShadow: "0 8px 20px rgba(34,197,94,0.25)",
+    boxShadow: "0 8px 20px rgba(34,197,94,0.35)",
   },
 
-  /* ================= TOOLBAR (RICH TEXT) ================= */
+  /* =====================================================
+     📑 TAB SYSTEM (GLASS PILLS)
+  ===================================================== */
+
+  tabBar: {
+    display: "flex",
+    gap: "6px",
+
+    padding: "6px",
+
+    borderRadius: "14px",
+
+    background: "rgba(30,10,60,0.6)",
+    backdropFilter: "blur(14px)",
+
+    border: "1px solid rgba(139,92,246,0.2)",
+
+    position: "sticky",
+    top: 0,
+
+    zIndex: 20,
+  },
+
+  tabBtn: {
+    flex: 1,
+
+    padding: "8px 10px",
+
+    borderRadius: "10px",
+    border: "none",
+
+    background: "transparent",
+
+    fontSize: "12px",
+    fontWeight: "500",
+
+    color: "#a1a1aa",
+
+    cursor: "pointer",
+
+    transition: "all 0.18s ease",
+  },
+
+  tabBtnActive: {
+    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
+
+    color: "#fff",
+
+    fontWeight: "600",
+
+    boxShadow: "0 6px 16px rgba(139,92,246,0.4)",
+  },
+
+  /* =====================================================
+     📌 CHECKBOX / FLAGS (MODERN CHIP STYLE)
+  ===================================================== */
+
+  checkbox: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+
+    fontSize: "12px",
+    color: "#d1d5db",
+
+    cursor: "pointer",
+  },
+
+  checkInline: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+
+    fontSize: "11px",
+
+    background: "rgba(139,92,246,0.12)",
+
+    padding: "4px 8px",
+
+    borderRadius: "999px",
+
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    color: "#c4b5fd",
+  },
+
+  /* =====================================================
+     🔘 SMALL BUTTONS / ICON BUTTONS
+  ===================================================== */
+
+  smallBtn: {
+    padding: "6px 8px",
+
+    fontSize: "11px",
+
+    borderRadius: "8px",
+
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    background: "rgba(139,92,246,0.08)",
+
+    color: "#c4b5fd",
+
+    cursor: "pointer",
+
+    transition: "all 0.15s ease",
+  },
+
+  smallBtnHover: {
+    background: "rgba(139,92,246,0.2)",
+  },
+
+  qTabIconBtn: {
+    width: "24px",
+    height: "24px",
+
+    borderRadius: "8px",
+
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    background: "rgba(139,92,246,0.1)",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    cursor: "pointer",
+
+    fontSize: "11px",
+
+    color: "#c4b5fd",
+
+    transition: "all 0.15s ease",
+  },
+
+  /* =====================================================
+     🧰 TOOLBAR (RICH TEXT EDITOR)
+  ===================================================== */
 
   toolbar: {
     display: "flex",
     gap: "6px",
     flexWrap: "wrap",
 
-    marginBottom: "6px",
+    marginBottom: "8px",
   },
 
   toolBtn: {
@@ -3495,9 +3812,11 @@ export const styles = {
 
     borderRadius: "8px",
 
-    border: "1px solid rgba(226,232,240,0.8)",
+    border: "1px solid rgba(139,92,246,0.25)",
 
-    background: "#ffffff",
+    background: "rgba(139,92,246,0.08)",
+
+    color: "#c4b5fd",
 
     cursor: "pointer",
 
@@ -3505,54 +3824,80 @@ export const styles = {
   },
 
   toolBtnHover: {
-    background: "#eef2ff",
-    borderColor: "#6366f1",
+    background: "rgba(139,92,246,0.2)",
+    borderColor: "#8b5cf6",
   },
 
-  /* ================= AUTOSUM (UPGRADED UX) ================= */
+  /* =====================================================
+     🔢 AUTOSUM (PREMIUM PANEL)
+  ===================================================== */
 
   autoWrapper: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px",
+    gap: "16px",
   },
 
-  autoRow: {
+  autoCard: {
     display: "flex",
-    justifyContent: "space-between",
     alignItems: "center",
+    gap: "14px",
 
-    padding: "12px 14px",
+    padding: "14px",
 
-    borderRadius: "12px",
+    borderRadius: "16px",
 
-    background: "rgba(255,255,255,0.9)",
+    background: "rgba(20,10,50,0.75)",
 
-    border: "1px solid rgba(226,232,240,0.7)",
+    border: "1px solid rgba(139,92,246,0.2)",
 
-    boxShadow: "0 4px 10px rgba(0,0,0,0.04)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
   },
 
-  autoInput: {
-    width: "90px",
+  autoIndex: {
+    width: "36px",
+    height: "36px",
 
-    padding: "8px",
+    borderRadius: "10px",
 
-    borderRadius: "8px",
+    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
 
-    border: "1px solid rgba(226,232,240,0.8)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
 
-    textAlign: "right",
+    fontSize: "12px",
+    fontWeight: "600",
+
+    color: "#fff",
+
+    boxShadow: "0 6px 14px rgba(139,92,246,0.4)",
   },
 
   autoHeader: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
 
     fontSize: "12px",
     fontWeight: "600",
 
-    color: "#334155",
+    color: "#e5e7eb",
+  },
+
+  autoInput: {
+    width: "100px",
+
+    padding: "8px",
+
+    borderRadius: "10px",
+
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    background: "rgba(10,5,30,0.9)",
+    color: "#f1f5f9",
+
+    textAlign: "right",
   },
 
   totalBox: {
@@ -3560,140 +3905,18 @@ export const styles = {
 
     padding: "10px",
 
-    borderRadius: "10px",
+    borderRadius: "12px",
 
-    background: "#eef2ff",
+    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
 
     textAlign: "center",
+
+    color: "#fff",
+
+    boxShadow: "0 8px 20px rgba(139,92,246,0.4)",
   },
 
   autoFillBtn: {
-    marginTop: "10px",
-
-    padding: "8px",
-
-    borderRadius: "8px",
-
-    background: "#4f46e5",
-    color: "#fff",
-
-    border: "none",
-
-    cursor: "pointer",
-  },
-
-  noAnswerRow: {
-    marginTop: "10px",
-
-    padding: "10px",
-
-    borderRadius: "10px",
-
-    background: "#f1f5f9",
-  },
-
-  /* ================= INFO / EMPTY / ERROR ================= */
-
-  info: {
-    background: "rgba(224,242,254,0.8)",
-
-    padding: "12px",
-
-    borderRadius: "10px",
-
-    fontSize: "12px",
-
-    border: "1px solid rgba(186,230,253,0.6)",
-  },
-
-  empty: {
-    padding: "28px",
-
-    textAlign: "center",
-
-    fontSize: "13px",
-
-    color: "#64748b",
-  },
-
-  error: {
-    color: "#ef4444",
-
-    fontSize: "12px",
-
-    marginTop: "6px",
-  },
-
-  /* ================= XML / COPY BLOCK ================= */
-
-  copyBlock: {
-    borderRadius: "16px",
-
-    background: "#020617",
-
-    border: "1px solid #0f172a",
-
-    overflow: "hidden",
-
-    boxShadow: "0 12px 30px rgba(0,0,0,0.2)",
-  },
-
-  copyHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-
-    padding: "10px 14px",
-
-    borderBottom: "1px solid #0f172a",
-
-    background: "#020617",
-  },
-
-  copyTitle: {
-    fontSize: "12px",
-    fontWeight: "600",
-
-    color: "#94a3b8",
-  },
-
-  copyBtn: {
-    border: "1px solid #1e293b",
-
-    background: "#020617",
-
-    color: "#e2e8f0",
-
-    borderRadius: "8px",
-
-    padding: "6px 8px",
-
-    cursor: "pointer",
-
-    fontSize: "12px",
-  },
-
-  copyCode: {
-    margin: 0,
-
-    padding: "14px",
-
-    fontSize: "12px",
-
-    color: "#22c55e",
-
-    fontFamily: "monospace",
-
-    background: "#020617",
-
-    overflowX: "auto",
-    maxHeight: "320px",
-    overflowY: "auto",
-  },
-
-  /* ================= SMART PASTE ================= */
-
-  smartPasteBtn: {
     marginTop: "10px",
 
     padding: "10px",
@@ -3705,18 +3928,162 @@ export const styles = {
     background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
     color: "#fff",
 
+    cursor: "pointer",
+
+    boxShadow: "0 8px 20px rgba(139,92,246,0.35)",
+  },
+
+  noAnswerRow: {
+    marginTop: "10px",
+
+    padding: "12px",
+
+    borderRadius: "12px",
+
+    background: "rgba(139,92,246,0.08)",
+
+    border: "1px dashed rgba(139,92,246,0.25)",
+
+    color: "#c4b5fd",
+  },
+
+  /* =====================================================
+     📢 INFO / EMPTY / ERROR STATES
+  ===================================================== */
+
+  info: {
+    background: "rgba(56,189,248,0.12)",
+
+    padding: "12px",
+
+    borderRadius: "12px",
+
+    fontSize: "12px",
+
+    border: "1px solid rgba(56,189,248,0.3)",
+
+    color: "#bae6fd",
+  },
+
+  empty: {
+    padding: "28px",
+
+    textAlign: "center",
+
+    fontSize: "13px",
+
+    color: "#9ca3af",
+
+    borderRadius: "14px",
+
+    border: "1px dashed rgba(139,92,246,0.2)",
+
+    background: "rgba(139,92,246,0.05)",
+  },
+
+  error: {
+    color: "#f87171",
+
+    fontSize: "12px",
+
+    marginTop: "6px",
+  },
+
+  /* =====================================================
+     🧾 XML / CODE VIEWER (TERMINAL STYLE)
+  ===================================================== */
+
+  copyBlock: {
+    borderRadius: "18px",
+
+    background: "#020617",
+
+    border: "1px solid rgba(139,92,246,0.25)",
+
+    overflow: "hidden",
+
+    boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+  },
+
+  copyHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+
+    padding: "10px 14px",
+
+    borderBottom: "1px solid rgba(139,92,246,0.2)",
+
+    background: "rgba(10,5,25,0.9)",
+  },
+
+  copyTitle: {
+    fontSize: "12px",
+    fontWeight: "600",
+
+    color: "#a78bfa",
+  },
+
+  copyBtn: {
+    border: "1px solid rgba(139,92,246,0.3)",
+
+    background: "rgba(139,92,246,0.1)",
+
+    color: "#e9d5ff",
+
+    borderRadius: "8px",
+
+    padding: "6px 10px",
+
+    cursor: "pointer",
+
+    fontSize: "12px",
+  },
+
+  copyCode: {
+    margin: 0,
+
+    padding: "16px",
+
+    fontSize: "12px",
+
+    color: "#22c55e",
+
+    fontFamily: "monospace",
+
+    background: "#020617",
+
+    overflowX: "auto",
+    maxHeight: "340px",
+    overflowY: "auto",
+  },
+
+  /* =====================================================
+     ⚡ SMART PASTE
+  ===================================================== */
+
+  smartPasteBtn: {
+    marginTop: "12px",
+
+    padding: "12px",
+
+    borderRadius: "12px",
+
+    border: "none",
+
+    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
+    color: "#fff",
+
     fontWeight: "600",
 
     cursor: "pointer",
 
-    boxShadow: "0 8px 20px rgba(124,58,237,0.3)",
+    boxShadow: "0 10px 30px rgba(139,92,246,0.4)",
   },
 
-  /* ================= MICRO INTERACTIONS ================= */
-
-  fadeIn: {
-    animation: "fadeIn 0.25s ease",
-  },
+  /* =====================================================
+     ✨ MICRO INTERACTIONS
+  ===================================================== */
 
   hoverLift: {
     transition: "all 0.2s ease",
@@ -3726,18 +4093,301 @@ export const styles = {
     transform: "translateY(-2px)",
   },
 
-  /* ================= KEYFRAMES ================= */
+  fadeIn: {
+    animation: "fadeIn 0.25s ease",
+  },
+
+  glowHover: {
+    transition: "all 0.2s ease",
+  },
+
+  glowHoverActive: {
+    boxShadow: "0 0 20px rgba(139,92,246,0.5)",
+  },
+
+  /* =====================================================
+     📜 SCROLLBAR (DARK PREMIUM)
+  ===================================================== */
+
+  scroll: {
+    scrollbarWidth: "thin",
+  },
+
+  /* =====================================================
+     🎬 KEYFRAMES
+  ===================================================== */
 
   keyframes: `
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  `
+  `,
+  /* =====================================================
+     📐 SPACING SYSTEM (CONSISTENCY)
+  ===================================================== */
+
+  padXs: { padding: "6px" },
+  padSm: { padding: "10px" },
+  padMd: { padding: "14px" },
+  padLg: { padding: "18px" },
+
+  gapXs: { gap: "6px" },
+  gapSm: { gap: "10px" },
+  gapMd: { gap: "14px" },
+  gapLg: { gap: "18px" },
+
+  /* =====================================================
+     🧱 STACK HELPERS (VERY IMPORTANT FOR CLEAN UI)
+  ===================================================== */
+
+  stackXs: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+
+  stackSm: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+
+  stackMd: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "14px",
+  },
+
+  stackLg: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
+  },
+
+  row: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+
+  rowBetween: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  /* =====================================================
+     🧊 SURFACE LAYERS (DEPTH SYSTEM)
+  ===================================================== */
+
+  surfaceBase: {
+    background: "rgba(10,5,25,0.9)",
+  },
+
+  surfaceSoft: {
+    background: "rgba(20,10,50,0.6)",
+  },
+
+  surfaceGlow: {
+    background: "linear-gradient(135deg, rgba(30,10,70,0.9), rgba(15,5,40,0.9))",
+  },
+
+  /* =====================================================
+     🪟 DIVIDERS (SUBTLE PREMIUM)
+  ===================================================== */
+
+  divider: {
+    height: "1px",
+
+    background: "linear-gradient(90deg, transparent, rgba(139,92,246,0.3), transparent)",
+
+    margin: "10px 0",
+  },
+
+  dividerVertical: {
+    width: "1px",
+    height: "100%",
+
+    background: "linear-gradient(180deg, transparent, rgba(139,92,246,0.3), transparent)",
+  },
+
+  /* =====================================================
+     🎯 HOVER STATES (GLOBAL)
+  ===================================================== */
+
+  hoverSoft: {
+    transition: "all 0.2s ease",
+  },
+
+  hoverSoftActive: {
+    background: "rgba(139,92,246,0.1)",
+  },
+
+  hoverBorder: {
+    transition: "all 0.2s ease",
+  },
+
+  hoverBorderActive: {
+    borderColor: "rgba(139,92,246,0.5)",
+  },
+
+  /* =====================================================
+     🧠 FOCUS RING SYSTEM (VERY IMPORTANT UX)
+  ===================================================== */
+
+  focusRing: {
+    outline: "none",
+  },
+
+  focusRingActive: {
+    boxShadow: "0 0 0 3px rgba(139,92,246,0.3)",
+  },
+
+  /* =====================================================
+     🎚 ALIGNMENT HELPERS
+  ===================================================== */
+
+  center: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  rightAlign: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+
+  fullWidth: {
+    width: "100%",
+  },
+
+  /* =====================================================
+     📏 WIDTH CONTROL (IMPORTANT FOR CLEAN LOOK)
+  ===================================================== */
+
+  maxContent: {
+    maxWidth: "900px",
+    margin: "0 auto",
+    width: "100%",
+  },
+
+  maxForm: {
+    maxWidth: "640px",
+    margin: "0 auto",
+    width: "100%",
+  },
+
+  /* =====================================================
+     🧩 PANEL GROUPING (ENTERPRISE LOOK)
+  ===================================================== */
+
+  panelGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
+
+    padding: "16px",
+
+    borderRadius: "18px",
+
+    background: "rgba(20,10,50,0.4)",
+
+    border: "1px solid rgba(139,92,246,0.15)",
+  },
+
+  panelSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+
+    paddingBottom: "12px",
+
+    borderBottom: "1px solid rgba(139,92,246,0.1)",
+  },
+
+  panelSectionLast: {
+    borderBottom: "none",
+  },
+
+  /* =====================================================
+     🪄 VISUAL BALANCE FIXES (VERY IMPORTANT)
+  ===================================================== */
+
+  contentSpacing: {
+    paddingTop: "6px",
+    paddingBottom: "6px",
+  },
+
+  tightSpacing: {
+    gap: "8px",
+  },
+
+  relaxedSpacing: {
+    gap: "20px",
+  },
+
+  /* =====================================================
+     🎨 TEXT SYSTEM (CONSISTENCY)
+  ===================================================== */
+
+  textPrimary: {
+    color: "#f1f5f9",
+  },
+
+  textSecondary: {
+    color: "#c4b5fd",
+  },
+
+  textMuted: {
+    color: "#9ca3af",
+  },
+
+  textDanger: {
+    color: "#f87171",
+  },
+
+  textSuccess: {
+    color: "#4ade80",
+  },
+
+  /* =====================================================
+     🔘 DISABLED STATE (IMPORTANT UX)
+  ===================================================== */
+
+  disabled: {
+    opacity: 0.5,
+    pointerEvents: "none",
+  },
+
+  /* =====================================================
+     🧠 TRANSITIONS (GLOBAL CONSISTENCY)
+  ===================================================== */
+
+  transitionFast: {
+    transition: "all 0.15s ease",
+  },
+
+  transition: {
+    transition: "all 0.2s ease",
+  },
+
+  transitionSlow: {
+    transition: "all 0.3s ease",
+  },
+
+  /* =====================================================
+     🧪 DEBUG (OPTIONAL - REMOVE LATER)
+  ===================================================== */
+
+  debugBorder: {
+    border: "1px dashed red",
+  }
 }
