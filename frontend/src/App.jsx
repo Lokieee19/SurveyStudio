@@ -2715,6 +2715,19 @@ function parseSmartPaste(text) {
   return questions;
 }
 
+function SectionHeader({ title, subtitle }) {
+  return (
+    <div style={styles.sectionHeader}>
+      <div>
+        <h3 style={styles.sectionTitle}>{title}</h3>
+        {subtitle && (
+          <p style={styles.sectionSub}>{subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Check({ label, checked, onChange }) {
   return (
     <label style={styles.checkbox}>
@@ -3005,7 +3018,94 @@ export const styles = {
 
     transition: "all 0.2s ease",
   },
+  
+  rightPanel: {
+    width: "420px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+    padding: "16px",
+    overflowY: "auto",
+    borderLeft: "1px solid rgba(139,92,246,0.2)",
+    background: "rgba(10,5,30,0.6)"
+  },
 
+  previewWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+
+  actionLeft: {
+    flex: 1
+  },
+
+  actionRight: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "flex-end"
+  },
+
+  autoRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px"
+  },
+
+  logicContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px"
+  },
+
+  logicBlock: {
+    padding: "12px",
+    borderRadius: "12px",
+    background: "rgba(139,92,246,0.08)",
+    border: "1px solid rgba(139,92,246,0.2)"
+  },
+
+  logicTitle: {
+    margin: 0,
+    fontSize: "13px",
+    fontWeight: "600"
+  },
+
+  logicDesc: {
+    fontSize: "12px",
+    color: "#9ca3af"
+  },
+
+  logicPlaceholder: {
+    padding: "20px",
+    border: "1px dashed rgba(139,92,246,0.3)",
+    borderRadius: "12px",
+    textAlign: "center"
+  },
+
+  advancedWrap: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px"
+  },
+
+  settingGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px"
+  },
+
+  inlineChecks: {
+    display: "flex",
+    gap: "10px"
+  },
+
+  inlineChecksWrap: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px"
+  },
   /* =====================================================
      🧱 MAIN LAYOUT
   ===================================================== */
