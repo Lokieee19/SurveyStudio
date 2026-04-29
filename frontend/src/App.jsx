@@ -2879,7 +2879,7 @@ function AutosumQuestion({ question }) {
  */
 
 export const styles = {
-
+  
   /* =====================================================
      🎨 C5i PREMIUM THEME TOKENS (PURPLE SYSTEM)
   ===================================================== */
@@ -2934,7 +2934,7 @@ export const styles = {
   ===================================================== */
 
   appShell: {
-    width: "100vw",
+    width: "100%",
     height: "100vh",
 
     display: "flex",
@@ -2944,14 +2944,9 @@ export const styles = {
 
     fontFamily: "Inter, system-ui, sans-serif",
 
-    background: `
-      radial-gradient(circle at 10% 20%, rgba(139,92,246,0.25), transparent 40%),
-      radial-gradient(circle at 90% 0%, rgba(124,58,237,0.2), transparent 40%),
-      radial-gradient(circle at 50% 100%, rgba(99,102,241,0.15), transparent 40%),
-      linear-gradient(180deg, #05010f 0%, #0b0620 100%)
-    `,
+    background: "#f8fafc", // ✅ WHITE BASE
 
-    color: "#f1f5f9",
+    color: "#0f172a",
   },
 
   /* =====================================================
@@ -3018,16 +3013,21 @@ export const styles = {
 
     transition: "all 0.2s ease",
   },
-  
+
   rightPanel: {
-    width: "420px",
+    width: "480px", // ⬅️ bigger
+
     display: "flex",
     flexDirection: "column",
     gap: "16px",
+
     padding: "16px",
+
     overflowY: "auto",
-    borderLeft: "1px solid rgba(139,92,246,0.2)",
-    background: "rgba(10,5,30,0.6)"
+
+    borderLeft: "1px solid #e5e7eb",
+
+    background: "#f9fafb",
   },
 
   previewWrapper: {
@@ -3037,13 +3037,13 @@ export const styles = {
   },
 
   actionLeft: {
-    flex: 1
+    display: "flex",
+    gap: "10px",
   },
 
   actionRight: {
-    flex: 1,
     display: "flex",
-    justifyContent: "flex-end"
+    gap: "10px",
   },
 
   autoRow: {
@@ -3114,6 +3114,7 @@ export const styles = {
     display: "flex",
     flex: 1,
     overflow: "hidden",
+    width: "100%", // ✅ ADD THIS
   },
 
   /* =====================================================
@@ -3121,33 +3122,19 @@ export const styles = {
   ===================================================== */
 
   sidebar: {
-    width: "220px",
+    width: "240px",
 
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
+    gap: "10px",
 
-    padding: "16px",
+    padding: "18px",
 
-    background: "rgba(15,5,40,0.85)",
-    backdropFilter: "blur(20px)",
+    background: "#0b0620", // dark sidebar
 
-    borderRight: "1px solid rgba(139,92,246,0.2)",
+    borderRight: "1px solid #e5e7eb",
 
-    boxShadow: "inset -1px 0 0 rgba(139,92,246,0.1)",
-  },
-
-  sidebarHeader: {
-    fontSize: "11px",
-    fontWeight: "600",
-
-    color: "#a78bfa",
-
-    marginBottom: "10px",
-    paddingLeft: "6px",
-
-    textTransform: "uppercase",
-    letterSpacing: "0.6px",
+    boxShadow: "4px 0 20px rgba(0,0,0,0.05)",
   },
 
   sidebarItem: {
@@ -3182,13 +3169,11 @@ export const styles = {
 
   contentArea: {
     flex: 1,
-
     display: "flex",
     flexDirection: "column",
-
     overflow: "hidden",
 
-    background: "rgba(10,5,25,0.6)",
+    background: "#ffffff", // clean white
   },
 
   panelContent: {
@@ -3315,18 +3300,17 @@ export const styles = {
   },
 
   previewCard: {
-    background: "rgba(10,5,30,0.9)",
-    backdropFilter: "blur(24px)",
+    background: "#ffffff",
 
-    borderRadius: "24px",
-    padding: "28px",
+    borderRadius: "16px",
+    padding: "20px",
 
-    border: "1px solid rgba(139,92,246,0.25)",
+    border: "1px solid #e5e7eb",
 
-    maxWidth: "780px",
-    margin: "0 auto",
+    maxWidth: "100%", // ⬅️ FULL WIDTH
+    margin: "0",
 
-    boxShadow: "0 30px 80px rgba(0,0,0,0.7)",
+    boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
   },
 
   xmlCard: {
@@ -3537,37 +3521,29 @@ export const styles = {
   ===================================================== */
 
   previewBtn: {
-    flex: 1,
+    padding: "10px 18px",
 
-    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #8b5cf6",
 
-    borderRadius: "14px",
-    border: "none",
-
-    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
+    background: "#8b5cf6",
     color: "#fff",
 
     fontWeight: "600",
-
-    boxShadow: "0 12px 35px rgba(139,92,246,0.5)",
 
     cursor: "pointer",
   },
 
   generateBtn: {
-    flex: 1,
+    padding: "10px 18px",
 
-    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #22c55e",
 
-    borderRadius: "14px",
-    border: "none",
-
-    background: "linear-gradient(135deg,#16a34a,#22c55e)",
-    color: "#02130a",
+    background: "#22c55e",
+    color: "#022c22",
 
     fontWeight: "600",
-
-    boxShadow: "0 12px 35px rgba(34,197,94,0.5)",
 
     cursor: "pointer",
   },
@@ -3577,24 +3553,20 @@ export const styles = {
   ===================================================== */
 
   actionBar: {
-    position: "sticky",
-    top: "12px",
-
     display: "flex",
-    gap: "12px",
+    justifyContent: "space-between",
+    alignItems: "center",
 
-    padding: "14px",
+    padding: "14px 18px",
+    marginBottom: "12px",
 
-    borderRadius: "18px",
+    borderRadius: "12px",
 
-    background: "rgba(15,5,40,0.75)",
-    backdropFilter: "blur(20px)",
+    background: "#ffffff",
 
-    border: "1px solid rgba(139,92,246,0.25)",
+    border: "1px solid #e5e7eb",
 
-    boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
-
-    zIndex: 40,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
   },
 
   /* =====================================================
