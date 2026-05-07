@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict, List
 from pydantic import BaseModel
 import os
@@ -10,7 +11,7 @@ from xml_generator import generate_xml
 # =============================
 # 🔐 AUTH + SECURITY
 # =============================
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 
@@ -19,6 +20,7 @@ from passlib.context import CryptContext
 # =============================
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from sqlalchemy.exc import SQLAlchemyError
 
 # =============================
 # 🔹 CONFIG
@@ -38,12 +40,13 @@ DATABASE_URL = os.getenv(
 app = FastAPI()
 
 # =============================
-# 🔐 CORS (IMPORTANT)
+# 🔐 CORS
 # =============================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://survey-studio-three.vercel.app"  # 🔥 your actual URL
+        "https://survey-studio-ten.vercel.app",
+        "http://localhost:5173"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -51,22 +54,36 @@ app.add_middleware(
 )
 
 # =============================
+# 🔐 SECURITY (🔥 FIX)
+# =============================
+security = HTTPBearer()
+
+# =============================
 # 🔹 DATABASE ENGINE
 # =============================
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={"check_same_thread": False}
-    )
-else:
-    engine = create_engine(
-        DATABASE_URL,
-        pool_size=10,
-        max_overflow=20,
-        pool_pre_ping=True
-    )
+def get_engine():
+    if DATABASE_URL.startswith("sqlite"):
+        return create_engine(
+            DATABASE_URL,
+            connect_args={"check_same_thread": False}
+        )
+    else:
+        return create_engine(
+            DATABASE_URL,
+            pool_size=10,
+            max_overflow=20,
+            pool_pre_ping=True,
+            pool_recycle=1800
+        )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = get_engine()
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
 Base = declarative_base()
 
 # =============================
@@ -79,18 +96,16 @@ class User(Base):
     email = Column(String(255), unique=True, index=True)
     password = Column(String)
 
-Base.metadata.create_all(bind=engine)
-
 # =============================
 # 🔐 PASSWORD HASHING
 # =============================
 pwd_context = CryptContext(
-    schemes=["bcrypt_sha256"],
+    schemes=["bcrypt"],
     deprecated="auto"
 )
 
 def validate_password(password: str):
-    if not password or len(password) < 8:
+    if not password or len(password.strip()) < 8:
         raise HTTPException(400, "Password must be at least 8 characters")
 
 def hash_password(password: str):
@@ -99,18 +114,25 @@ def hash_password(password: str):
     return pwd_context.hash(password)
 
 def verify_password(plain: str, hashed: str):
-    return pwd_context.verify(plain.strip(), hashed)
+    try:
+        return pwd_context.verify(plain.strip(), hashed)
+    except Exception:
+        return False
 
 # =============================
 # 🔐 TOKEN
 # =============================
 def create_token(data: dict):
+    if "sub" not in data:
+        raise HTTPException(500, "Token must include 'sub'")
+
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+
+    expire = datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
 
     to_encode.update({
         "exp": expire,
-        "iat": datetime.utcnow()
+        "iat": datetime.now(timezone.utc)
     })
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -118,25 +140,34 @@ def create_token(data: dict):
 def decode_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
         if "sub" not in payload:
             raise HTTPException(401, "Invalid token")
+
         return payload
+
     except JWTError:
         raise HTTPException(401, "Invalid or expired token")
 
 # =============================
-# 🔐 AUTH HEADER
+# 🔐 AUTH DEPENDENCY (🔥 FIXED)
 # =============================
-def get_current_user(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Invalid authorization header")
+ALLOWED_EMAILS = [
+    "lokesh.m",
+    "nishmitha.k",
+    "goureesh.hegde",
+    "dinesh1.kalimuthu",
+    "shiprapandey"
+]
 
-    token = authorization.split(" ")[1]
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+
     payload = decode_token(token)
-
     email = payload["sub"]
 
-    # 🔐 Double-check allowed users
     if email not in ALLOWED_EMAILS:
         raise HTTPException(403, "Access denied")
 
@@ -149,9 +180,15 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    except SQLAlchemyError:
+        db.rollback()
+        raise
     finally:
         db.close()
 
+# =============================
+# 🌱 SEED USERS
+# =============================
 def seed_users():
     db = SessionLocal()
 
@@ -174,6 +211,15 @@ def seed_users():
 
     db.commit()
     db.close()
+
+# =============================
+# 🚀 STARTUP
+# =============================
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
+    seed_users()
+
 # =============================
 # 🔹 REQUEST MODELS
 # =============================
@@ -185,41 +231,8 @@ class AuthRequest(BaseModel):
     password: str
 
 # =============================
-# 🔐 ALLOWED USERS (FIXED)
-# =============================
-ALLOWED_EMAILS = [
-    "lokesh.m",
-    "nishmitha.k",
-    "goureesh.hegde",
-    "dinesh.kalimuthu",
-    "shiprapandey"
-]
-
-# =============================
 # 🔐 AUTH ROUTES
 # =============================
-
-@app.post("/signup")
-def signup(req: AuthRequest, db: Session = Depends(get_db)):
-    email = req.email.lower().strip()
-
-    if email not in ALLOWED_EMAILS:
-        raise HTTPException(403, "Access restricted")
-
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
-        raise HTTPException(400, "User already exists")
-
-    user = User(
-        email=email,
-        password=hash_password(req.password)
-    )
-
-    db.add(user)
-    db.commit()
-
-    return {"message": "User created"}
-
 @app.post("/login")
 def login(req: AuthRequest, db: Session = Depends(get_db)):
     email = req.email.lower().strip()
@@ -229,7 +242,10 @@ def login(req: AuthRequest, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.email == email).first()
 
-    if not user or not verify_password(req.password, user.password):
+    if not user:
+        raise HTTPException(401, "User not found")
+
+    if not verify_password(req.password, user.password):
         raise HTTPException(401, "Invalid credentials")
 
     token = create_token({"sub": user.email})
@@ -248,10 +264,13 @@ async def preview(req: TextRequest):
         return {"error": str(e), "questions": []}
 
 # =============================
-# 🔒 GENERATE (FULLY PROTECTED)
+# 🔒 GENERATE (PROTECTED)
 # =============================
 @app.post("/generate")
-async def generate(payload: List[Dict], user=Depends(get_current_user)):
+async def generate(
+    payload: List[Dict],
+    user=Depends(get_current_user)
+):
     try:
         if not payload:
             raise HTTPException(400, "Empty payload")
@@ -265,3 +284,5 @@ async def generate(payload: List[Dict], user=Depends(get_current_user)):
 
     except Exception as e:
         return {"error": str(e), "xml": ""}
+    
+
