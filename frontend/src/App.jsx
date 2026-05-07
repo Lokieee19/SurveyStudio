@@ -2879,97 +2879,68 @@ function AutosumQuestion({ question }) {
  */
 
 export const styles = {
-  
+
   /* =====================================================
-     🎨 C5i PREMIUM THEME TOKENS (PURPLE SYSTEM)
+     🎨 CORE DESIGN TOKENS (PROFESSIONAL DARK UI)
   ===================================================== */
 
-  /* -------- CORE COLORS -------- */
-  colorBg: "#0b0620",
-  colorBgSoft: "#120a2e",
-  colorPanel: "rgba(20,10,50,0.75)",
-  colorPanelSolid: "#140a32",
+  /* -------- COLORS -------- */
+  bg: "#020617",
+  bgSoft: "#0b1220",
+  panel: "#0f172a",
+  panelSoft: "#111827",
 
-  colorBorder: "rgba(139,92,246,0.18)",
-  colorBorderStrong: "rgba(139,92,246,0.35)",
+  border: "#1f2937",
+  borderSoft: "#111827",
 
-  colorText: "#f1f5f9",
-  colorSub: "#a1a1aa",
+  text: "#e5e7eb",
+  textMuted: "#9ca3af",
+  textDim: "#6b7280",
 
-  /* -------- PURPLE SYSTEM -------- */
-  primary: "#8b5cf6",
-  primaryDeep: "#6d28d9",
-  primaryGlow: "rgba(139,92,246,0.45)",
-  primarySoft: "rgba(139,92,246,0.12)",
+  primary: "#6366f1",
+  primaryHover: "#5855eb",
 
-  accent: "#a78bfa",
-  accentSoft: "rgba(167,139,250,0.15)",
-
-  /* -------- STATES -------- */
   success: "#22c55e",
   danger: "#ef4444",
   warning: "#f59e0b",
 
-  /* -------- GLASS -------- */
-  glass: "blur(18px)",
-  glassStrong: "blur(28px)",
-
   /* -------- RADIUS -------- */
-  radiusXs: "6px",
-  radiusSm: "10px",
-  radiusMd: "16px",
-  radiusLg: "22px",
-  radiusXl: "28px",
+  rSm: "8px",
+  rMd: "12px",
+  rLg: "16px",
 
-  /* -------- SHADOWS (GLOW BASED) -------- */
-  shadowGlowSm: "0 0 12px rgba(139,92,246,0.25)",
-  shadowGlowMd: "0 0 24px rgba(139,92,246,0.35)",
-  shadowGlowLg: "0 0 60px rgba(139,92,246,0.45)",
-
-  shadowSoft: "0 10px 30px rgba(0,0,0,0.4)",
-  shadowDeep: "0 20px 60px rgba(0,0,0,0.6)",
+  /* -------- SHADOW -------- */
+  shadowSm: "0 1px 2px rgba(0,0,0,0.3)",
+  shadowMd: "0 4px 12px rgba(0,0,0,0.4)",
 
   /* =====================================================
-     🌌 PAGE (C5i BACKGROUND)
+     🌌 APP SHELL
   ===================================================== */
 
   appShell: {
     width: "100%",
     height: "100vh",
-
     display: "flex",
     flexDirection: "column",
-
     overflow: "hidden",
-
+    background: "#020617",
+    color: "#e5e7eb",
     fontFamily: "Inter, system-ui, sans-serif",
-
-    background: "#f8fafc", // ✅ WHITE BASE
-
-    color: "#0f172a",
   },
 
   /* =====================================================
-     🔝 TOP BAR (PREMIUM GLASS)
+     🔝 TOP BAR
   ===================================================== */
 
   topBar: {
-    height: "64px",
-
+    height: "56px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-
-    padding: "0 24px",
-
-    background: "rgba(10,5,30,0.6)",
-    backdropFilter: "blur(20px)",
-
-    borderBottom: "1px solid rgba(139,92,246,0.2)",
-
-    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-
-    zIndex: 100,
+    padding: "0 20px",
+    background: "#020617",
+    borderBottom: "1px solid #111827",
+    zIndex: 10,
   },
 
   topLeft: {
@@ -2979,133 +2950,33 @@ export const styles = {
   },
 
   appTitle: {
+    fontSize: "15px",
+    fontWeight: "600",
     margin: 0,
-    fontSize: "18px",
-    fontWeight: "700",
-    letterSpacing: "-0.3px",
-
-    background: "linear-gradient(90deg,#c4b5fd,#8b5cf6)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
+    color: "#e5e7eb",
   },
 
   topRight: {
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    gap: "14px",
   },
 
   userText: {
     fontSize: "12px",
-    color: "#a1a1aa",
+    color: "#9ca3af",
   },
 
   logoutBtn: {
-    padding: "8px 12px",
-
-    borderRadius: "10px",
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    background: "rgba(139,92,246,0.08)",
+    padding: "6px 10px",
+    borderRadius: "8px",
+    border: "1px solid #1f2937",
+    background: "#0f172a",
     color: "#e5e7eb",
-
     cursor: "pointer",
-
-    transition: "all 0.2s ease",
-  },
-
-  rightPanel: {
-    width: "480px", // ⬅️ bigger
-
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-
-    padding: "16px",
-
-    overflowY: "auto",
-
-    borderLeft: "1px solid #e5e7eb",
-
-    background: "#f9fafb",
-  },
-
-  previewWrapper: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
-
-  actionLeft: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  actionRight: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  autoRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "12px"
-  },
-
-  logicContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px"
-  },
-
-  logicBlock: {
-    padding: "12px",
-    borderRadius: "12px",
-    background: "rgba(139,92,246,0.08)",
-    border: "1px solid rgba(139,92,246,0.2)"
-  },
-
-  logicTitle: {
-    margin: 0,
-    fontSize: "13px",
-    fontWeight: "600"
-  },
-
-  logicDesc: {
     fontSize: "12px",
-    color: "#9ca3af"
   },
 
-  logicPlaceholder: {
-    padding: "20px",
-    border: "1px dashed rgba(139,92,246,0.3)",
-    borderRadius: "12px",
-    textAlign: "center"
-  },
-
-  advancedWrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px"
-  },
-
-  settingGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px"
-  },
-
-  inlineChecks: {
-    display: "flex",
-    gap: "10px"
-  },
-
-  inlineChecksWrap: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "10px"
-  },
   /* =====================================================
      🧱 MAIN LAYOUT
   ===================================================== */
@@ -3114,53 +2985,41 @@ export const styles = {
     display: "flex",
     flex: 1,
     overflow: "hidden",
-    width: "100%", // ✅ ADD THIS
   },
 
   /* =====================================================
-     📌 SIDEBAR (C5i STYLE)
+     📌 SIDEBAR
   ===================================================== */
 
   sidebar: {
-    width: "240px",
-
+    width: "220px",
+    background: "#020617",
+    borderRight: "1px solid #111827",
+    padding: "14px",
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
+    gap: "6px",
+  },
 
-    padding: "18px",
-
-    background: "#0b0620", // dark sidebar
-
-    borderRight: "1px solid #e5e7eb",
-
-    boxShadow: "4px 0 20px rgba(0,0,0,0.05)",
+  sidebarHeader: {
+    fontSize: "11px",
+    color: "#6b7280",
+    marginBottom: "6px",
+    paddingLeft: "6px",
   },
 
   sidebarItem: {
     padding: "10px 12px",
-
-    borderRadius: "12px",
-
-    fontSize: "12px",
-    fontWeight: "500",
-
-    color: "#cbd5f5",
-
+    borderRadius: "8px",
+    fontSize: "13px",
+    color: "#9ca3af",
     cursor: "pointer",
-
-    transition: "all 0.18s ease",
-
-    display: "flex",
-    alignItems: "center",
+    transition: "all 0.15s ease",
   },
 
   sidebarItemActive: {
-    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
-
-    color: "#fff",
-
-    boxShadow: "0 8px 24px rgba(139,92,246,0.4)",
+    background: "#1e293b",
+    color: "#ffffff",
   },
 
   /* =====================================================
@@ -3172,37 +3031,50 @@ export const styles = {
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-
-    background: "#ffffff", // clean white
+    background: "#020617",
   },
 
   panelContent: {
     flex: 1,
-
     overflowY: "auto",
+    padding: "24px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
 
-    padding: "18px",
+  /* =====================================================
+     👉 RIGHT PANEL
+  ===================================================== */
 
+  rightPanel: {
+    width: "420px",
+    background: "#020617",
+    borderLeft: "1px solid #111827",
+    display: "flex",
+    flexDirection: "column",
+    padding: "16px",
+    gap: "16px",
+    overflowY: "auto",
+  },
+
+  previewWrapper: {
     display: "flex",
     flexDirection: "column",
     gap: "16px",
   },
 
   /* =====================================================
-     🧭 QUESTION BAR (NEON STRIP)
+    🧭 QUESTION BAR (TOP NAV INSIDE BUILDER)
   ===================================================== */
 
   questionBar: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-
-    padding: "12px 16px",
-
-    borderBottom: "1px solid rgba(139,92,246,0.2)",
-
-    background: "rgba(10,5,30,0.6)",
-    backdropFilter: "blur(18px)",
+    padding: "10px 16px",
+    borderBottom: "1px solid #111827",
+    background: "#020617",
   },
 
   questionTabs: {
@@ -3215,153 +3087,192 @@ export const styles = {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-
-    padding: "8px 12px",
-
-    borderRadius: "10px",
-
+    padding: "6px 10px",
+    borderRadius: "8px",
     fontSize: "12px",
-
-    background: "rgba(139,92,246,0.08)",
-    border: "1px solid rgba(139,92,246,0.15)",
-
-    color: "#cbd5f5",
-
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    color: "#9ca3af",
     cursor: "pointer",
-
-    transition: "all 0.2s ease",
+    transition: "all 0.15s ease",
   },
 
   qTabActive: {
-    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
+    background: "#1e293b",
     color: "#fff",
-
-    boxShadow: "0 8px 20px rgba(139,92,246,0.45)",
+    border: "1px solid #374151",
   },
 
   qTabActions: {
     display: "flex",
-    gap: "6px",
+    gap: "4px",
   },
 
   addQBtn: {
-    padding: "10px 14px",
-
-    borderRadius: "12px",
-    border: "none",
-
-    background: "linear-gradient(135deg,#22c55e,#4ade80)",
-    color: "#02130a",
-
-    fontWeight: "600",
-
+    padding: "8px 12px",
+    borderRadius: "8px",
+    border: "1px solid #1f2937",
+    background: "#0f172a",
+    color: "#e5e7eb",
+    fontSize: "12px",
     cursor: "pointer",
-
-    boxShadow: "0 8px 20px rgba(34,197,94,0.4)",
   },
 
   /* =====================================================
-     🧊 CARD SYSTEM (GLASS + GLOW)
+    🧊 CARD SYSTEM (CLEAN — NO GLOW)
   ===================================================== */
 
   card: {
-    background: "rgba(20,10,50,0.65)",
-    backdropFilter: "blur(18px)",
-
-    borderRadius: "18px",
-    padding: "18px",
-
-    border: "1px solid rgba(139,92,246,0.18)",
-
-    boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
-
-    position: "relative",
-    overflow: "hidden",
-  },
-
-  cardGlow: {
-    position: "absolute",
-    inset: 0,
-
-    background: "radial-gradient(circle at 0% 0%, rgba(139,92,246,0.25), transparent 50%)",
-
-    pointerEvents: "none",
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    borderRadius: "12px",
+    padding: "16px",
   },
 
   cardPrimary: {
-    background: "linear-gradient(135deg, rgba(30,10,70,0.9), rgba(20,10,50,0.9))",
-
-    borderRadius: "20px",
-    padding: "20px",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    boxShadow: "0 15px 50px rgba(139,92,246,0.25)",
+    background: "#0f172a",
+    border: "1px solid #374151",
+    borderRadius: "12px",
+    padding: "18px",
   },
 
   previewCard: {
-    background: "#ffffff",
-
-    borderRadius: "16px",
-    padding: "20px",
-
-    border: "1px solid #e5e7eb",
-
-    maxWidth: "100%", // ⬅️ FULL WIDTH
-    margin: "0",
-
-    boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+    background: "#020617",
+    border: "1px solid #1f2937",
+    borderRadius: "12px",
+    padding: "16px",
   },
 
   xmlCard: {
-    background: "rgba(10,5,25,0.9)",
-
-    borderRadius: "16px",
-    padding: "16px",
-
-    border: "1px solid rgba(139,92,246,0.2)",
+    background: "#020617",
+    border: "1px solid #1f2937",
+    borderRadius: "12px",
+    padding: "14px",
   },
 
   /* =====================================================
-     🧾 TYPOGRAPHY (PREMIUM CONTRAST)
+    🎯 ACTION BAR (TOP OF RIGHT PANEL)
+  ===================================================== */
+
+  actionBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "10px",
+    border: "1px solid #1f2937",
+    borderRadius: "10px",
+    background: "#0f172a",
+  },
+
+  actionLeft: {
+    display: "flex",
+    gap: "8px",
+  },
+
+  actionRight: {
+    display: "flex",
+    gap: "8px",
+  },
+
+  /* =====================================================
+    🎛 BUTTON SYSTEM (ENTERPRISE STYLE)
+  ===================================================== */
+
+  btnBase: {
+    padding: "8px 14px",
+    borderRadius: "8px",
+    border: "1px solid transparent",
+    fontSize: "12px",
+    fontWeight: "500",
+    cursor: "pointer",
+  },
+
+  btnPrimary: {
+    background: "#6366f1",
+    color: "#fff",
+  },
+
+  btnPrimaryHover: {
+    background: "#5855eb",
+  },
+
+  btnSecondary: {
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    color: "#e5e7eb",
+  },
+
+  btnSuccess: {
+    background: "#22c55e",
+    color: "#022c22",
+  },
+
+  btnDanger: {
+    background: "#ef4444",
+    color: "#fff",
+  },
+
+  btnGhost: {
+    background: "transparent",
+    border: "1px solid #1f2937",
+    color: "#9ca3af",
+  },
+
+  /* =====================================================
+    🚀 MAIN ACTION BUTTONS
+  ===================================================== */
+
+  previewBtn: {
+    padding: "8px 14px",
+    borderRadius: "8px",
+    border: "none",
+    background: "#6366f1",
+    color: "#fff",
+    fontSize: "12px",
+    cursor: "pointer",
+  },
+
+  generateBtn: {
+    padding: "8px 14px",
+    borderRadius: "8px",
+    border: "none",
+    background: "#22c55e",
+    color: "#022c22",
+    fontSize: "12px",
+    cursor: "pointer",
+  },
+
+  /* =====================================================
+    🧾 SECTION HEADER
   ===================================================== */
 
   sectionHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-
     marginBottom: "12px",
   },
 
   sectionTitle: {
     margin: 0,
-    fontSize: "14px",
+    fontSize: "13px",
     fontWeight: "600",
-
     color: "#e5e7eb",
-
-    letterSpacing: "-0.2px",
   },
 
   sectionSub: {
-    margin: 0,
     fontSize: "11px",
-
-    color: "#9ca3af",
+    color: "#6b7280",
   },
 
   sectionMini: {
     fontSize: "11px",
-    fontWeight: "600",
-
-    marginTop: "14px",
-
-    color: "#a78bfa",
+    color: "#9ca3af",
+    marginTop: "10px",
   },
 
   /* =====================================================
-     🔲 GRID SYSTEM
+    🔲 GRID SYSTEM
   ===================================================== */
 
   grid2: {
@@ -3377,7 +3288,7 @@ export const styles = {
   },
 
   /* =====================================================
-     ✍️ INPUT SYSTEM (DARK GLASS)
+    ✍️ INPUT SYSTEM (PROFESSIONAL FORMS)
   ===================================================== */
 
   inputWrap: {
@@ -3388,413 +3299,128 @@ export const styles = {
 
   label: {
     fontSize: "11px",
-    color: "#a1a1aa",
+    color: "#6b7280",
     fontWeight: "500",
   },
 
   input: {
     padding: "10px 12px",
-
-    borderRadius: "12px",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    background: "rgba(10,5,30,0.9)",
-    color: "#f1f5f9",
-
-    fontSize: "12px",
-
+    borderRadius: "8px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    color: "#e5e7eb",
+    fontSize: "13px",
     outline: "none",
-
-    transition: "all 0.18s ease",
+    transition: "all 0.15s ease",
   },
 
   inputFocus: {
-    borderColor: "#8b5cf6",
-
-    boxShadow: "0 0 0 3px rgba(139,92,246,0.25)",
+    border: "1px solid #6366f1",
   },
 
   inputError: {
-    borderColor: "#ef4444",
-
-    boxShadow: "0 0 0 3px rgba(239,68,68,0.25)",
+    border: "1px solid #ef4444",
   },
+
+  /* =====================================================
+    🧾 TEXTAREA
+  ===================================================== */
 
   textarea: {
     width: "100%",
+    minHeight: "120px",
     padding: "12px",
-
-    borderRadius: "14px",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    background: "rgba(10,5,30,0.95)",
-    color: "#f1f5f9",
-
-    minHeight: "160px",
-
-    fontSize: "12px",
-    lineHeight: "1.5",
-
-    resize: "vertical",
-
-    outline: "none",
-
-    transition: "all 0.18s ease",
-  },
-
-  select: {
-    padding: "10px 12px",
-
-    borderRadius: "12px",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    background: "rgba(10,5,30,0.95)",
+    borderRadius: "8px",
+    border: "1px solid #1f2937",
+    background: "#020617",
     color: "#e5e7eb",
-
-    fontSize: "12px",
-
+    fontSize: "13px",
+    lineHeight: "1.5",
+    resize: "vertical",
     outline: "none",
-
-    cursor: "pointer",
-  },
-
-  /* =====================================================
-     🎛 BUTTON SYSTEM (NEON / GRADIENT)
-  ===================================================== */
-
-  btnBase: {
-    padding: "10px 14px",
-
-    borderRadius: "12px",
-    border: "none",
-
-    fontSize: "12px",
-    fontWeight: "600",
-
-    cursor: "pointer",
-
-    transition: "all 0.2s ease",
-  },
-
-  btnPrimary: {
-    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
-
-    color: "#fff",
-
-    boxShadow: "0 10px 30px rgba(139,92,246,0.5)",
-  },
-
-  btnPrimaryHover: {
-    transform: "translateY(-1px)",
-    boxShadow: "0 14px 40px rgba(139,92,246,0.6)",
-  },
-
-  btnSuccess: {
-    background: "linear-gradient(135deg,#16a34a,#22c55e)",
-
-    color: "#02130a",
-
-    boxShadow: "0 10px 25px rgba(34,197,94,0.4)",
-  },
-
-  btnDanger: {
-    background: "linear-gradient(135deg,#ef4444,#dc2626)",
-
-    color: "#fff",
-
-    boxShadow: "0 8px 20px rgba(239,68,68,0.4)",
-  },
-
-  btnGhost: {
-    background: "rgba(139,92,246,0.08)",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    color: "#c4b5fd",
-  },
-
-  /* =====================================================
-     🚀 MAIN ACTION BUTTONS
-  ===================================================== */
-
-  previewBtn: {
-    padding: "10px 18px",
-
-    borderRadius: "10px",
-    border: "1px solid #8b5cf6",
-
-    background: "#8b5cf6",
-    color: "#fff",
-
-    fontWeight: "600",
-
-    cursor: "pointer",
-  },
-
-  generateBtn: {
-    padding: "10px 18px",
-
-    borderRadius: "10px",
-    border: "1px solid #22c55e",
-
-    background: "#22c55e",
-    color: "#022c22",
-
-    fontWeight: "600",
-
-    cursor: "pointer",
-  },
-
-  /* =====================================================
-     🎯 ACTION BAR (FLOATING GLASS)
-  ===================================================== */
-
-  actionBar: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-
-    padding: "14px 18px",
-    marginBottom: "12px",
-
-    borderRadius: "12px",
-
-    background: "#ffffff",
-
-    border: "1px solid #e5e7eb",
-
-    boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
-  },
-
-  /* =====================================================
-     🧠 OPTION EDITOR (CORE UX — HIGH IMPACT)
-  ===================================================== */
-
-  optionHeader: {
-    display: "grid",
-    gridTemplateColumns: "60px 1fr 240px",
-    gap: "12px",
-
-    padding: "10px 12px",
-
-    fontSize: "11px",
-    fontWeight: "600",
-
-    color: "#a1a1aa",
-
-    borderBottom: "1px solid rgba(139,92,246,0.15)",
-  },
-
-  optionRow: {
-    display: "flex",
-    gap: "14px",
-
-    padding: "14px",
-
-    borderRadius: "16px",
-
-    background: "rgba(20,10,50,0.7)",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-
-    transition: "all 0.2s ease",
-
-    position: "relative",
-  },
-
-  optionRowHover: {
-    transform: "translateY(-2px)",
-    boxShadow: "0 16px 40px rgba(139,92,246,0.35)",
-    borderColor: "rgba(139,92,246,0.45)",
-  },
-
-  optionIndex: {
-    width: "50px",
-
-    fontWeight: "600",
-    fontSize: "12px",
-
-    color: "#c4b5fd",
-
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  optionCenter: {
-    flex: 1,
-
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
   },
 
   optionTextarea: {
     width: "100%",
     minHeight: "140px",
-
     padding: "12px",
-
-    borderRadius: "12px",
-
-    border: "1px dashed rgba(139,92,246,0.4)",
-
-    background: "rgba(10,5,30,0.9)",
-    color: "#f1f5f9",
-
-    fontSize: "12px",
-
+    borderRadius: "8px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    color: "#e5e7eb",
+    fontSize: "13px",
     resize: "vertical",
-
     outline: "none",
-
-    transition: "all 0.2s ease",
   },
 
   optionTextareaFocus: {
-    borderColor: "#8b5cf6",
-    boxShadow: "0 0 0 3px rgba(139,92,246,0.25)",
+    border: "1px solid #6366f1",
   },
 
-  optionRight: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
+  /* =====================================================
+    🔽 SELECT
+  ===================================================== */
 
-    alignItems: "flex-end",
-
-    minWidth: "180px",
+  select: {
+    padding: "10px 12px",
+    borderRadius: "8px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    color: "#e5e7eb",
+    fontSize: "13px",
+    outline: "none",
+    cursor: "pointer",
   },
 
-  optionRightInline: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "6px",
-
-    alignItems: "center",
-  },
+  /* =====================================================
+    🔢 SMALL INPUT (OPTION VALUES)
+  ===================================================== */
 
   smallInput: {
     width: "70px",
-
     padding: "8px",
-
-    borderRadius: "10px",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    background: "rgba(10,5,30,0.9)",
+    borderRadius: "6px",
+    border: "1px solid #1f2937",
+    background: "#020617",
     color: "#e5e7eb",
-
     fontSize: "12px",
-
     textAlign: "center",
   },
 
-  deleteBtn: {
-    background: "linear-gradient(135deg,#ef4444,#dc2626)",
-    color: "#fff",
-
-    border: "none",
-
-    padding: "6px 10px",
-
-    fontSize: "11px",
-
-    borderRadius: "8px",
-
-    cursor: "pointer",
-
-    boxShadow: "0 6px 14px rgba(239,68,68,0.4)",
-  },
-
-  addBtn: {
-    padding: "8px 12px",
-
-    fontSize: "12px",
-
-    borderRadius: "10px",
-
-    background: "linear-gradient(135deg,#22c55e,#4ade80)",
-    color: "#02130a",
-
-    border: "none",
-
-    cursor: "pointer",
-
-    boxShadow: "0 8px 20px rgba(34,197,94,0.35)",
-  },
-
   /* =====================================================
-     📑 TAB SYSTEM (GLASS PILLS)
+    🧰 RICH TEXT TOOLBAR
   ===================================================== */
 
-  tabBar: {
+  toolbar: {
     display: "flex",
     gap: "6px",
-
-    padding: "6px",
-
-    borderRadius: "14px",
-
-    background: "rgba(30,10,60,0.6)",
-    backdropFilter: "blur(14px)",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    position: "sticky",
-    top: 0,
-
-    zIndex: 20,
+    marginBottom: "6px",
   },
 
-  tabBtn: {
-    flex: 1,
-
-    padding: "8px 10px",
-
-    borderRadius: "10px",
-    border: "none",
-
-    background: "transparent",
-
-    fontSize: "12px",
-    fontWeight: "500",
-
-    color: "#a1a1aa",
-
+  toolBtn: {
+    padding: "6px 8px",
+    borderRadius: "6px",
+    border: "1px solid #1f2937",
+    background: "#0f172a",
+    color: "#e5e7eb",
+    fontSize: "11px",
     cursor: "pointer",
-
-    transition: "all 0.18s ease",
   },
 
-  tabBtnActive: {
-    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
-
-    color: "#fff",
-
-    fontWeight: "600",
-
-    boxShadow: "0 6px 16px rgba(139,92,246,0.4)",
+  toolBtnHover: {
+    background: "#1e293b",
   },
 
   /* =====================================================
-     📌 CHECKBOX / FLAGS (MODERN CHIP STYLE)
+    📌 CHECKBOX SYSTEM
   ===================================================== */
 
   checkbox: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-
     fontSize: "12px",
-    color: "#d1d5db",
-
+    color: "#9ca3af",
     cursor: "pointer",
   },
 
@@ -3802,445 +3428,413 @@ export const styles = {
     display: "flex",
     alignItems: "center",
     gap: "6px",
-
     fontSize: "11px",
-
-    background: "rgba(139,92,246,0.12)",
-
     padding: "4px 8px",
-
     borderRadius: "999px",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    color: "#c4b5fd",
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    color: "#9ca3af",
   },
 
   /* =====================================================
-     🔘 SMALL BUTTONS / ICON BUTTONS
+    🧠 OPTION EDITOR (VERY IMPORTANT UI)
   ===================================================== */
 
-  smallBtn: {
-    padding: "6px 8px",
-
+  optionHeader: {
+    display: "grid",
+    gridTemplateColumns: "60px 1fr 200px",
+    gap: "10px",
+    padding: "8px 10px",
     fontSize: "11px",
-
-    borderRadius: "8px",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    background: "rgba(139,92,246,0.08)",
-
-    color: "#c4b5fd",
-
-    cursor: "pointer",
-
-    transition: "all 0.15s ease",
+    color: "#6b7280",
+    borderBottom: "1px solid #1f2937",
   },
 
-  smallBtnHover: {
-    background: "rgba(139,92,246,0.2)",
+  optionRow: {
+    display: "flex",
+    gap: "12px",
+    padding: "12px",
+    borderRadius: "10px",
+    background: "#020617",
+    border: "1px solid #1f2937",
   },
 
-  qTabIconBtn: {
-    width: "24px",
-    height: "24px",
+  optionRowHover: {
+    border: "1px solid #374151",
+  },
 
-    borderRadius: "8px",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    background: "rgba(139,92,246,0.1)",
-
+  optionIndex: {
+    width: "50px",
+    fontSize: "12px",
+    color: "#9ca3af",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-
-    cursor: "pointer",
-
-    fontSize: "11px",
-
-    color: "#c4b5fd",
-
-    transition: "all 0.15s ease",
   },
 
-  /* =====================================================
-     🧰 TOOLBAR (RICH TEXT EDITOR)
-  ===================================================== */
-
-  toolbar: {
+  optionCenter: {
+    flex: 1,
     display: "flex",
+    flexDirection: "column",
     gap: "6px",
+  },
+
+  optionRight: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    minWidth: "160px",
+  },
+
+  optionRightInline: {
+    display: "flex",
     flexWrap: "wrap",
-
-    marginBottom: "8px",
+    gap: "6px",
   },
 
-  toolBtn: {
+  deleteBtn: {
     padding: "6px 10px",
-
+    borderRadius: "6px",
+    border: "none",
+    background: "#ef4444",
+    color: "#fff",
     fontSize: "11px",
-
-    borderRadius: "8px",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
-    background: "rgba(139,92,246,0.08)",
-
-    color: "#c4b5fd",
-
     cursor: "pointer",
-
-    transition: "all 0.15s ease",
   },
 
-  toolBtnHover: {
-    background: "rgba(139,92,246,0.2)",
-    borderColor: "#8b5cf6",
+  addBtn: {
+    padding: "6px 10px",
+    borderRadius: "6px",
+    border: "1px solid #1f2937",
+    background: "#0f172a",
+    color: "#e5e7eb",
+    fontSize: "12px",
+    cursor: "pointer",
   },
 
   /* =====================================================
-     🔢 AUTOSUM (PREMIUM PANEL)
+    🧠 INFO / EMPTY STATES
   ===================================================== */
 
-  autoWrapper: {
+  info: {
+    padding: "10px",
+    borderRadius: "8px",
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    fontSize: "12px",
+    color: "#9ca3af",
+  },
+
+  empty: {
+    padding: "18px",
+    textAlign: "center",
+    borderRadius: "8px",
+    border: "1px dashed #1f2937",
+    fontSize: "12px",
+    color: "#6b7280",
+  },
+
+  error: {
+    fontSize: "11px",
+    color: "#ef4444",
+  },
+
+  /* =====================================================
+    🧠 LOGIC BUILDER (CLEAN BLOCK SYSTEM)
+  ===================================================== */
+
+  logicContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "14px",
+  },
+
+  logicBlock: {
+    padding: "14px",
+    borderRadius: "10px",
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+  },
+
+  logicTitle: {
+    fontSize: "13px",
+    fontWeight: "600",
+    marginBottom: "4px",
+    color: "#e5e7eb",
+  },
+
+  logicDesc: {
+    fontSize: "12px",
+    color: "#6b7280",
+  },
+
+  logicPlaceholder: {
+    padding: "18px",
+    borderRadius: "10px",
+    border: "1px dashed #1f2937",
+    textAlign: "center",
+    color: "#6b7280",
+    fontSize: "12px",
+  },
+
+  /* =====================================================
+    ⚙️ ADVANCED PANEL WRAPPER
+  ===================================================== */
+
+  advancedWrap: {
     display: "flex",
     flexDirection: "column",
     gap: "16px",
   },
 
-  autoCard: {
+  panelGroup: {
     display: "flex",
-    alignItems: "center",
-    gap: "14px",
-
-    padding: "14px",
-
-    borderRadius: "16px",
-
-    background: "rgba(20,10,50,0.75)",
-
-    border: "1px solid rgba(139,92,246,0.2)",
-
-    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+    flexDirection: "column",
+    gap: "16px",
+    padding: "16px",
+    borderRadius: "12px",
+    background: "#020617",
+    border: "1px solid #1f2937",
   },
 
-  autoIndex: {
-    width: "36px",
-    height: "36px",
-
-    borderRadius: "10px",
-
-    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
-
+  panelSection: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: "column",
+    gap: "10px",
+    paddingBottom: "10px",
+    borderBottom: "1px solid #111827",
+  },
 
-    fontSize: "12px",
-    fontWeight: "600",
+  panelSectionLast: {
+    borderBottom: "none",
+  },
 
-    color: "#fff",
+  settingGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
 
-    boxShadow: "0 6px 14px rgba(139,92,246,0.4)",
+  inlineChecks: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  inlineChecksWrap: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+
+  /* =====================================================
+    🔢 AUTOSUM UI (IMPORTANT UX)
+  ===================================================== */
+
+  autoWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
   },
 
   autoHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-
     fontSize: "12px",
     fontWeight: "600",
-
     color: "#e5e7eb",
   },
 
-  autoInput: {
-    width: "100px",
-
-    padding: "8px",
-
+  autoCard: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "12px",
     borderRadius: "10px",
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+  },
 
-    border: "1px solid rgba(139,92,246,0.25)",
+  autoIndex: {
+    width: "28px",
+    height: "28px",
+    borderRadius: "6px",
+    background: "#1e293b",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "11px",
+    color: "#e5e7eb",
+  },
 
-    background: "rgba(10,5,30,0.9)",
-    color: "#f1f5f9",
+  autoRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "10px",
+  },
 
+  autoInput: {
+    width: "90px",
+    padding: "6px 8px",
+    borderRadius: "6px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    color: "#e5e7eb",
     textAlign: "right",
+    fontSize: "12px",
   },
 
   totalBox: {
-    fontWeight: "700",
-
     padding: "10px",
-
-    borderRadius: "12px",
-
-    background: "linear-gradient(135deg,#6d28d9,#8b5cf6)",
-
+    borderRadius: "8px",
+    background: "#1e293b",
     textAlign: "center",
-
-    color: "#fff",
-
-    boxShadow: "0 8px 20px rgba(139,92,246,0.4)",
+    fontWeight: "600",
+    fontSize: "12px",
+    color: "#e5e7eb",
   },
 
   autoFillBtn: {
-    marginTop: "10px",
-
-    padding: "10px",
-
-    borderRadius: "10px",
-
+    padding: "8px",
+    borderRadius: "8px",
     border: "none",
-
-    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
+    background: "#6366f1",
     color: "#fff",
-
+    fontSize: "12px",
     cursor: "pointer",
-
-    boxShadow: "0 8px 20px rgba(139,92,246,0.35)",
   },
 
   noAnswerRow: {
-    marginTop: "10px",
-
-    padding: "12px",
-
-    borderRadius: "12px",
-
-    background: "rgba(139,92,246,0.08)",
-
-    border: "1px dashed rgba(139,92,246,0.25)",
-
-    color: "#c4b5fd",
+    padding: "10px",
+    borderRadius: "8px",
+    background: "#0f172a",
+    border: "1px dashed #1f2937",
+    fontSize: "12px",
+    color: "#9ca3af",
   },
 
   /* =====================================================
-     📢 INFO / EMPTY / ERROR STATES
+    📊 PREVIEW PANEL POLISH
   ===================================================== */
 
-  info: {
-    background: "rgba(56,189,248,0.12)",
-
-    padding: "12px",
-
+  previewCard: {
+    background: "#020617",
+    border: "1px solid #1f2937",
     borderRadius: "12px",
-
-    fontSize: "12px",
-
-    border: "1px solid rgba(56,189,248,0.3)",
-
-    color: "#bae6fd",
-  },
-
-  empty: {
-    padding: "28px",
-
-    textAlign: "center",
-
-    fontSize: "13px",
-
-    color: "#9ca3af",
-
-    borderRadius: "14px",
-
-    border: "1px dashed rgba(139,92,246,0.2)",
-
-    background: "rgba(139,92,246,0.05)",
-  },
-
-  error: {
-    color: "#f87171",
-
-    fontSize: "12px",
-
-    marginTop: "6px",
+    padding: "16px",
   },
 
   /* =====================================================
-     🧾 XML / CODE VIEWER (TERMINAL STYLE)
+    🧾 XML OUTPUT (CLEAN TERMINAL STYLE)
   ===================================================== */
 
   copyBlock: {
-    borderRadius: "18px",
-
+    borderRadius: "10px",
     background: "#020617",
-
-    border: "1px solid rgba(139,92,246,0.25)",
-
+    border: "1px solid #1f2937",
     overflow: "hidden",
-
-    boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
   },
 
   copyHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-
-    padding: "10px 14px",
-
-    borderBottom: "1px solid rgba(139,92,246,0.2)",
-
-    background: "rgba(10,5,25,0.9)",
+    padding: "8px 10px",
+    borderBottom: "1px solid #111827",
+    background: "#0f172a",
   },
 
   copyTitle: {
     fontSize: "12px",
     fontWeight: "600",
-
-    color: "#a78bfa",
+    color: "#9ca3af",
   },
 
   copyBtn: {
-    border: "1px solid rgba(139,92,246,0.3)",
-
-    background: "rgba(139,92,246,0.1)",
-
-    color: "#e9d5ff",
-
-    borderRadius: "8px",
-
-    padding: "6px 10px",
-
+    border: "1px solid #1f2937",
+    background: "#020617",
+    color: "#e5e7eb",
+    borderRadius: "6px",
+    padding: "4px 8px",
     cursor: "pointer",
-
-    fontSize: "12px",
+    fontSize: "11px",
   },
 
   copyCode: {
     margin: 0,
-
-    padding: "16px",
-
+    padding: "12px",
     fontSize: "12px",
-
-    color: "#22c55e",
-
     fontFamily: "monospace",
-
+    color: "#22c55e",
     background: "#020617",
-
-    overflowX: "auto",
-    maxHeight: "340px",
-    overflowY: "auto",
+    maxHeight: "300px",
+    overflow: "auto",
   },
 
   /* =====================================================
-     ⚡ SMART PASTE
+    ⚡ SMART PASTE BUTTON
   ===================================================== */
 
   smartPasteBtn: {
-    marginTop: "12px",
-
-    padding: "12px",
-
-    borderRadius: "12px",
-
+    marginTop: "10px",
+    padding: "10px",
+    borderRadius: "8px",
     border: "none",
-
-    background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
+    background: "#6366f1",
     color: "#fff",
-
-    fontWeight: "600",
-
+    fontSize: "13px",
     cursor: "pointer",
-
-    boxShadow: "0 10px 30px rgba(139,92,246,0.4)",
   },
 
   /* =====================================================
-     ✨ MICRO INTERACTIONS
+    📐 SPACING SYSTEM (CONSISTENT RHYTHM)
   ===================================================== */
 
-  hoverLift: {
-    transition: "all 0.2s ease",
-  },
+  padXs: { padding: "4px" },
+  padSm: { padding: "8px" },
+  padMd: { padding: "12px" },
+  padLg: { padding: "16px" },
+  padXl: { padding: "20px" },
 
-  hoverLiftActive: {
-    transform: "translateY(-2px)",
-  },
-
-  fadeIn: {
-    animation: "fadeIn 0.25s ease",
-  },
-
-  glowHover: {
-    transition: "all 0.2s ease",
-  },
-
-  glowHoverActive: {
-    boxShadow: "0 0 20px rgba(139,92,246,0.5)",
-  },
+  gapXs: { gap: "4px" },
+  gapSm: { gap: "8px" },
+  gapMd: { gap: "12px" },
+  gapLg: { gap: "16px" },
+  gapXl: { gap: "20px" },
 
   /* =====================================================
-     📜 SCROLLBAR (DARK PREMIUM)
-  ===================================================== */
-
-  scroll: {
-    scrollbarWidth: "thin",
-  },
-
-  /* =====================================================
-     🎬 KEYFRAMES
-  ===================================================== */
-
-  keyframes: `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  `,
-  /* =====================================================
-     📐 SPACING SYSTEM (CONSISTENCY)
-  ===================================================== */
-
-  padXs: { padding: "6px" },
-  padSm: { padding: "10px" },
-  padMd: { padding: "14px" },
-  padLg: { padding: "18px" },
-
-  gapXs: { gap: "6px" },
-  gapSm: { gap: "10px" },
-  gapMd: { gap: "14px" },
-  gapLg: { gap: "18px" },
-
-  /* =====================================================
-     🧱 STACK HELPERS (VERY IMPORTANT FOR CLEAN UI)
+    🧱 STACK HELPERS (VERY IMPORTANT)
   ===================================================== */
 
   stackXs: {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "4px",
   },
 
   stackSm: {
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
+    gap: "8px",
   },
 
   stackMd: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px",
+    gap: "12px",
   },
 
   stackLg: {
     display: "flex",
     flexDirection: "column",
-    gap: "18px",
+    gap: "16px",
+  },
+
+  stackXl: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
   },
 
   row: {
@@ -4255,75 +3849,95 @@ export const styles = {
     justifyContent: "space-between",
   },
 
+  rowWrap: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+
   /* =====================================================
-     🧊 SURFACE LAYERS (DEPTH SYSTEM)
+    📏 WIDTH SYSTEM (ALIGN CONTENT PROPERLY)
   ===================================================== */
 
-  surfaceBase: {
-    background: "rgba(10,5,25,0.9)",
+  fullWidth: {
+    width: "100%",
   },
 
-  surfaceSoft: {
-    background: "rgba(20,10,50,0.6)",
+  maxContent: {
+    maxWidth: "1100px",
+    margin: "0 auto",
+    width: "100%",
   },
 
-  surfaceGlow: {
-    background: "linear-gradient(135deg, rgba(30,10,70,0.9), rgba(15,5,40,0.9))",
+  maxForm: {
+    maxWidth: "720px",
+    margin: "0 auto",
+    width: "100%",
   },
 
   /* =====================================================
-     🪟 DIVIDERS (SUBTLE PREMIUM)
+    📦 PANEL STRUCTURE (ENTERPRISE GROUPING)
+  ===================================================== */
+
+  panelGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+    padding: "16px",
+    borderRadius: "12px",
+    background: "#020617",
+    border: "1px solid #1f2937",
+  },
+
+  panelSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    paddingBottom: "12px",
+    borderBottom: "1px solid #111827",
+  },
+
+  panelSectionLast: {
+    borderBottom: "none",
+  },
+
+  contentSpacing: {
+    paddingTop: "6px",
+    paddingBottom: "6px",
+  },
+
+  tightSpacing: {
+    gap: "6px",
+  },
+
+  relaxedSpacing: {
+    gap: "20px",
+  },
+
+  /* =====================================================
+    🪟 DIVIDERS (SUBTLE)
   ===================================================== */
 
   divider: {
     height: "1px",
-
-    background: "linear-gradient(90deg, transparent, rgba(139,92,246,0.3), transparent)",
-
+    background: "#111827",
     margin: "10px 0",
+  },
+
+  dividerSoft: {
+    height: "1px",
+    background: "#0f172a",
+    margin: "8px 0",
   },
 
   dividerVertical: {
     width: "1px",
     height: "100%",
-
-    background: "linear-gradient(180deg, transparent, rgba(139,92,246,0.3), transparent)",
+    background: "#111827",
   },
 
   /* =====================================================
-     🎯 HOVER STATES (GLOBAL)
-  ===================================================== */
-
-  hoverSoft: {
-    transition: "all 0.2s ease",
-  },
-
-  hoverSoftActive: {
-    background: "rgba(139,92,246,0.1)",
-  },
-
-  hoverBorder: {
-    transition: "all 0.2s ease",
-  },
-
-  hoverBorderActive: {
-    borderColor: "rgba(139,92,246,0.5)",
-  },
-
-  /* =====================================================
-     🧠 FOCUS RING SYSTEM (VERY IMPORTANT UX)
-  ===================================================== */
-
-  focusRing: {
-    outline: "none",
-  },
-
-  focusRingActive: {
-    boxShadow: "0 0 0 3px rgba(139,92,246,0.3)",
-  },
-
-  /* =====================================================
-     🎚 ALIGNMENT HELPERS
+    🎯 ALIGNMENT HELPERS
   ===================================================== */
 
   center: {
@@ -4337,110 +3951,117 @@ export const styles = {
     justifyContent: "flex-end",
   },
 
-  fullWidth: {
-    width: "100%",
-  },
-
-  /* =====================================================
-     📏 WIDTH CONTROL (IMPORTANT FOR CLEAN LOOK)
-  ===================================================== */
-
-  maxContent: {
-    maxWidth: "900px",
-    margin: "0 auto",
-    width: "100%",
-  },
-
-  maxForm: {
-    maxWidth: "640px",
-    margin: "0 auto",
-    width: "100%",
-  },
-
-  /* =====================================================
-     🧩 PANEL GROUPING (ENTERPRISE LOOK)
-  ===================================================== */
-
-  panelGroup: {
+  leftAlign: {
     display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-
-    padding: "16px",
-
-    borderRadius: "18px",
-
-    background: "rgba(20,10,50,0.4)",
-
-    border: "1px solid rgba(139,92,246,0.15)",
+    justifyContent: "flex-start",
   },
 
-  panelSection: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-
-    paddingBottom: "12px",
-
-    borderBottom: "1px solid rgba(139,92,246,0.1)",
+  alignStart: {
+    alignItems: "flex-start",
   },
 
-  panelSectionLast: {
-    borderBottom: "none",
+  alignCenter: {
+    alignItems: "center",
+  },
+
+  alignEnd: {
+    alignItems: "flex-end",
   },
 
   /* =====================================================
-     🪄 VISUAL BALANCE FIXES (VERY IMPORTANT)
-  ===================================================== */
-
-  contentSpacing: {
-    paddingTop: "6px",
-    paddingBottom: "6px",
-  },
-
-  tightSpacing: {
-    gap: "8px",
-  },
-
-  relaxedSpacing: {
-    gap: "20px",
-  },
-
-  /* =====================================================
-     🎨 TEXT SYSTEM (CONSISTENCY)
+    🎨 TEXT SYSTEM (CONSISTENCY)
   ===================================================== */
 
   textPrimary: {
-    color: "#f1f5f9",
+    color: "#e5e7eb",
   },
 
   textSecondary: {
-    color: "#c4b5fd",
-  },
-
-  textMuted: {
     color: "#9ca3af",
   },
 
-  textDanger: {
-    color: "#f87171",
+  textMuted: {
+    color: "#6b7280",
   },
 
   textSuccess: {
-    color: "#4ade80",
+    color: "#22c55e",
+  },
+
+  textDanger: {
+    color: "#ef4444",
+  },
+
+  textWarning: {
+    color: "#f59e0b",
+  },
+
+  textSmall: {
+    fontSize: "11px",
+  },
+
+  textNormal: {
+    fontSize: "13px",
+  },
+
+  textLarge: {
+    fontSize: "15px",
+  },
+
+  textBold: {
+    fontWeight: "600",
   },
 
   /* =====================================================
-     🔘 DISABLED STATE (IMPORTANT UX)
+    🔘 SMALL BUTTONS / ICON BUTTONS
   ===================================================== */
 
-  disabled: {
-    opacity: 0.5,
-    pointerEvents: "none",
+  smallBtn: {
+    padding: "4px 8px",
+    borderRadius: "6px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    color: "#9ca3af",
+    fontSize: "11px",
+    cursor: "pointer",
+  },
+
+  smallBtnHover: {
+    background: "#0f172a",
+  },
+
+  qTabIconBtn: {
+    width: "22px",
+    height: "22px",
+    borderRadius: "6px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "11px",
+    color: "#9ca3af",
+    cursor: "pointer",
   },
 
   /* =====================================================
-     🧠 TRANSITIONS (GLOBAL CONSISTENCY)
+    📜 SCROLL + OVERFLOW POLISH
+  ===================================================== */
+
+  scrollY: {
+    overflowY: "auto",
+  },
+
+  scrollX: {
+    overflowX: "auto",
+  },
+
+  scrollThin: {
+    scrollbarWidth: "thin",
+  },
+
+  /* =====================================================
+    ✨ MICRO INTERACTIONS
   ===================================================== */
 
   transitionFast: {
@@ -4451,15 +4072,570 @@ export const styles = {
     transition: "all 0.2s ease",
   },
 
-  transitionSlow: {
-    transition: "all 0.3s ease",
+  hoverSoft: {
+    transition: "all 0.15s ease",
+  },
+
+  hoverSoftActive: {
+    background: "#0f172a",
+  },
+
+  hoverBorder: {
+    transition: "all 0.15s ease",
+  },
+
+  hoverBorderActive: {
+    border: "1px solid #374151",
+  },
+
+  hoverLift: {
+    transition: "all 0.2s ease",
+  },
+
+  hoverLiftActive: {
+    transform: "translateY(-1px)",
   },
 
   /* =====================================================
-     🧪 DEBUG (OPTIONAL - REMOVE LATER)
+    🧠 FOCUS SYSTEM (UX IMPORTANT)
   ===================================================== */
 
-  debugBorder: {
+  focusRing: {
+    outline: "none",
+  },
+
+  focusRingActive: {
+    boxShadow: "0 0 0 2px rgba(99,102,241,0.4)",
+  },
+
+  /* =====================================================
+    🔘 DISABLED STATE
+  ===================================================== */
+
+  disabled: {
+    opacity: 0.5,
+    pointerEvents: "none",
+  },
+
+  /* =====================================================
+    🧪 DEBUG (REMOVE LATER)
+  ===================================================== */
+
+  debug: {
     border: "1px dashed red",
+  },
+
+  /* =====================================================
+    ✨ HOVER + ACTIVE STATES (GLOBAL)
+  ===================================================== */
+
+  hoverPrimary: {
+    transition: "all 0.15s ease",
+  },
+
+  hoverPrimaryActive: {
+    background: "#5855eb",
+  },
+
+  hoverCard: {
+    transition: "all 0.2s ease",
+  },
+
+  hoverCardActive: {
+    border: "1px solid #374151",
+    transform: "translateY(-1px)",
+  },
+
+  hoverRow: {
+    transition: "all 0.15s ease",
+  },
+
+  hoverRowActive: {
+    background: "#0f172a",
+  },
+
+  /* =====================================================
+    🎯 BUTTON STATES (IMPORTANT UX)
+  ===================================================== */
+
+  btnHover: {
+    transition: "all 0.15s ease",
+  },
+
+  btnPrimaryActive: {
+    background: "#5855eb",
+  },
+
+  btnSuccessActive: {
+    background: "#16a34a",
+  },
+
+  btnDangerActive: {
+    background: "#dc2626",
+  },
+
+  btnDisabled: {
+    opacity: 0.5,
+    cursor: "not-allowed",
+  },
+
+  /* =====================================================
+    🧠 INPUT STATES
+  ===================================================== */
+
+  inputHover: {
+    transition: "all 0.15s ease",
+  },
+
+  inputHoverActive: {
+    border: "1px solid #374151",
+  },
+
+  inputFocus: {
+    border: "1px solid #6366f1",
+    boxShadow: "0 0 0 1px rgba(99,102,241,0.3)",
+  },
+
+  textareaFocus: {
+    border: "1px solid #6366f1",
+  },
+
+  selectFocus: {
+    border: "1px solid #6366f1",
+  },
+
+  /* =====================================================
+    📌 TAB INTERACTIONS
+  ===================================================== */
+
+  qTabHover: {
+    transition: "all 0.15s ease",
+  },
+
+  qTabHoverActive: {
+    background: "#111827",
+  },
+
+  qTabActiveStrong: {
+    background: "#1e293b",
+    border: "1px solid #374151",
+    color: "#fff",
+  },
+
+  /* =====================================================
+    🧩 SIDEBAR INTERACTIONS
+  ===================================================== */
+
+  sidebarItemHover: {
+    transition: "all 0.15s ease",
+  },
+
+  sidebarItemHoverActive: {
+    background: "#0f172a",
+  },
+
+  sidebarItemActiveStrong: {
+    background: "#1e293b",
+    color: "#fff",
+    fontWeight: "500",
+  },
+
+  /* =====================================================
+    📊 LOADING + STATE UI
+  ===================================================== */
+
+  loadingBox: {
+    padding: "16px",
+    borderRadius: "10px",
+    border: "1px solid #1f2937",
+    background: "#020617",
+    textAlign: "center",
+    fontSize: "12px",
+    color: "#9ca3af",
+  },
+
+  skeleton: {
+    height: "12px",
+    borderRadius: "6px",
+    background: "#111827",
+  },
+
+  skeletonPulse: {
+    animation: "pulse 1.5s infinite",
+  },
+
+  /* =====================================================
+    📢 ALERT STATES
+  ===================================================== */
+
+  alertSuccess: {
+    padding: "10px",
+    borderRadius: "8px",
+    background: "rgba(34,197,94,0.1)",
+    border: "1px solid rgba(34,197,94,0.3)",
+    color: "#22c55e",
+    fontSize: "12px",
+  },
+
+  alertError: {
+    padding: "10px",
+    borderRadius: "8px",
+    background: "rgba(239,68,68,0.1)",
+    border: "1px solid rgba(239,68,68,0.3)",
+    color: "#ef4444",
+    fontSize: "12px",
+  },
+
+  alertWarning: {
+    padding: "10px",
+    borderRadius: "8px",
+    background: "rgba(245,158,11,0.1)",
+    border: "1px solid rgba(245,158,11,0.3)",
+    color: "#f59e0b",
+    fontSize: "12px",
+  },
+
+  /* =====================================================
+    🧾 EMPTY / NO DATA STATES
+  ===================================================== */
+
+  emptyState: {
+    padding: "20px",
+    borderRadius: "10px",
+    border: "1px dashed #1f2937",
+    textAlign: "center",
+    fontSize: "12px",
+    color: "#6b7280",
+  },
+
+  emptyIcon: {
+    fontSize: "20px",
+    marginBottom: "6px",
+  },
+
+  /* =====================================================
+    📦 MODAL / OVERLAY BASE (FUTURE READY)
+  ===================================================== */
+
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.6)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
+
+  modal: {
+    width: "420px",
+    background: "#020617",
+    borderRadius: "12px",
+    border: "1px solid #1f2937",
+    padding: "16px",
+  },
+
+  modalHeader: {
+    fontSize: "14px",
+    fontWeight: "600",
+    marginBottom: "10px",
+  },
+
+  modalFooter: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "10px",
+    marginTop: "14px",
+  },
+
+  /* =====================================================
+    🎬 ANIMATIONS
+  ===================================================== */
+
+  fadeIn: {
+    animation: "fadeIn 0.2s ease",
+  },
+
+  slideUp: {
+    animation: "slideUp 0.2s ease",
+  },
+
+  keyframes: `
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+  `,
+
+  /* =====================================================
+    🎯 FINAL VISUAL POLISH HELPERS
+  ===================================================== */
+
+  softSurface: {
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    borderRadius: "10px",
+  },
+
+  elevatedSurface: {
+    background: "#020617",
+    border: "1px solid #1f2937",
+    borderRadius: "12px",
+  },
+
+  glassSurface: {
+    background: "rgba(15,23,42,0.7)",
+    backdropFilter: "blur(6px)",
+    borderRadius: "12px",
+    border: "1px solid #1f2937",
+  },
+
+  /* =====================================================
+    🧹 FINAL NORMALIZATION (REMOVE INCONSISTENCY)
+  ===================================================== */
+
+  /* Unified surfaces (use these everywhere) */
+  surfaceBase: {
+    background: "#020617",
+    border: "1px solid #1f2937",
+    borderRadius: "10px",
+  },
+
+  surfaceCard: {
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    borderRadius: "12px",
+  },
+
+  surfaceSoft: {
+    background: "#111827",
+    borderRadius: "10px",
+  },
+
+  /* =====================================================
+    🎯 CONSISTENT CARD OVERRIDES
+    (USE THESE INSTEAD OF MULTIPLE CARD VARIANTS)
+  ===================================================== */
+
+  cardClean: {
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    borderRadius: "12px",
+    padding: "16px",
+  },
+
+  cardCompact: {
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    borderRadius: "10px",
+    padding: "12px",
+  },
+
+  cardFlat: {
+    background: "transparent",
+    border: "1px solid #1f2937",
+    borderRadius: "10px",
+    padding: "14px",
+  },
+
+  /* =====================================================
+    📐 CONSISTENT BORDER SYSTEM
+  ===================================================== */
+
+  border: {
+    border: "1px solid #1f2937",
+  },
+
+  borderStrong: {
+    border: "1px solid #374151",
+  },
+
+  borderSoft: {
+    border: "1px solid #111827",
+  },
+
+  /* =====================================================
+    🎨 BACKGROUND VARIANTS
+  ===================================================== */
+
+  bgPrimary: {
+    background: "#020617",
+  },
+
+  bgSecondary: {
+    background: "#0f172a",
+  },
+
+  bgTertiary: {
+    background: "#111827",
+  },
+
+  /* =====================================================
+    📏 HEIGHT HELPERS
+  ===================================================== */
+
+  hFull: {
+    height: "100%",
+  },
+
+  hScreen: {
+    height: "100vh",
+  },
+
+  /* =====================================================
+    🧠 FLEX UTILITIES (REUSABLE)
+  ===================================================== */
+
+  flex: {
+    display: "flex",
+  },
+
+  flexCol: {
+    display: "flex",
+    flexDirection: "column",
+  },
+
+  flexRow: {
+    display: "flex",
+    flexDirection: "row",
+  },
+
+  flexCenter: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  flexBetween: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  flexEnd: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+
+  /* =====================================================
+    🔘 BUTTON SIZE SYSTEM
+  ===================================================== */
+
+  btnSm: {
+    padding: "6px 10px",
+    fontSize: "11px",
+  },
+
+  btnMd: {
+    padding: "8px 14px",
+    fontSize: "12px",
+  },
+
+  btnLg: {
+    padding: "10px 16px",
+    fontSize: "13px",
+  },
+
+  /* =====================================================
+    🧾 FORM LAYOUT HELPERS
+  ===================================================== */
+
+  formGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+
+  formRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "12px",
+  },
+
+  formRow3: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    gap: "12px",
+  },
+
+  /* =====================================================
+    🎯 VISUAL CONSISTENCY FIXES
+  ===================================================== */
+
+  /* remove any white leftovers */
+  forceDarkBg: {
+    background: "#020617",
+    color: "#e5e7eb",
+  },
+
+  /* ensure all panels align */
+  panelFix: {
+    background: "#020617",
+    border: "1px solid #1f2937",
+  },
+
+  /* =====================================================
+    🚫 REMOVE OLD PROBLEMATIC STYLES (DO THIS MANUALLY)
+  ===================================================== */
+
+  /*
+  DELETE THESE FROM YOUR OLD FILE:
+
+  ❌ backdropFilter
+  ❌ heavy gradients (linear-gradient purple)
+  ❌ glow shadows
+  ❌ mixed white backgrounds (#ffffff)
+  ❌ duplicate card styles
+  ❌ neon colors
+
+  KEEP IT CLEAN.
+  */
+
+  /* =====================================================
+    ✅ FINAL DESIGN RULES (FOLLOW THIS)
+  ===================================================== */
+
+  /*
+  1. ONLY use:
+    - #020617 (base)
+    - #0f172a (cards)
+    - #111827 (soft areas)
+
+  2. BORDER ALWAYS:
+    - #1f2937
+
+  3. PRIMARY COLOR:
+    - #6366f1 ONLY
+
+  4. NO GLOWS
+  5. NO RANDOM COLORS
+  6. NO WHITE BACKGROUNDS
+
+  */
+
+  /* =====================================================
+    🧪 FINAL DEBUG TOOL (OPTIONAL)
+  ===================================================== */
+
+  debugAll: {
+    outline: "1px solid red",
+  },
+
 }
